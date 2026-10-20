@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using KryptoSteuer.Application.Imports;
+using KryptoSteuer.Importers.Bitget;
 using KryptoSteuer.Importers.GenericCsv;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,7 @@ public static class ImportersAssembly
     public static IServiceCollection AddImporters(this IServiceCollection services)
     {
         services.AddSingleton<IImporter, GenericCsvImporter>();
+        services.AddSingleton<IImporter, BitgetApiImporter>();
         return services;
     }
 }

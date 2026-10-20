@@ -76,8 +76,8 @@ public sealed class Transaction
 
             case TransactionType.Unknown:
                 // Unbekannte Typen werden unverändert zur Prüfung gespeichert; Beine sind frei.
-                if (Status != TransactionStatus.NeedsReview)
-                    errors.Add("Unbekannte Typen müssen den Status NeedsReview haben.");
+                if (Status == TransactionStatus.Ok)
+                    errors.Add("Unbekannte Typen müssen den Status NeedsReview oder Ignored haben.");
                 break;
 
             case TransactionType.FuturesPnL:
