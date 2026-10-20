@@ -19,3 +19,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 - Datenmodell (P2): Ledger-Entitäten (Account, Asset, RawRecord, Transaction/TransactionLeg, TransferLink, Price,
   Lot, Disposal, TaxRun, AuditLogEntry) mit EF-Core-Konfiguration, Beinen-Invarianten und Idempotenz-Schlüssel.
 - Unit-Tests für Beinen-Invarianten und Idempotenz; `docs/03-datenmodell.md` mit ER-Diagramm; ADR 0002.
+- CI und Sicherheit (P3): GitHub Actions `build-and-test` (Backend inkl. Testcontainers, Frontend Lint/Test/Build,
+  Coverage-Artefakte, Mindestabdeckung TaxEngine 95 %, gitleaks), `codeql` (C# und TypeScript), Dependabot
+  (NuGet, npm, Docker, Actions), Pull-Request-Vorlage, gitleaks-Pre-Commit-Hook (`.githooks/`).
+- Börsen-API-Keys werden über `ISecretProtector` (ASP.NET Data Protection) verschlüsselt; Schlüsselring im Volume
+  `dpkeys` außerhalb der Datenbank. User Secrets für lokale Entwicklung.
+- ESLint (angular-eslint) im Frontend, `package-lock.json` eingecheckt, `docs/07-betrieb.md`.

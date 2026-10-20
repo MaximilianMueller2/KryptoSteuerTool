@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Prüft gestagte Änderungen mit gitleaks. Aktivieren: git config core.hooksPath .githooks
+set -euo pipefail
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "gitleaks fehlt (https://github.com/gitleaks/gitleaks#installing). Commit abgebrochen." >&2
+  exit 1
+fi
+exec gitleaks protect --staged --redact --verbose

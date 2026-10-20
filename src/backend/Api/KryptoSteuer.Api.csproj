@@ -2,6 +2,8 @@
   <PropertyGroup>
     <RootNamespace>KryptoSteuer.Api</RootNamespace>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Für lokale Geheimnisse: dotnet user-secrets set ... --project src/backend/Api -->
+    <UserSecretsId>kryptosteuer-api-dev</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

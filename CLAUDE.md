@@ -30,7 +30,7 @@ ETFs folgen später. Die App ersetzt keine Steuerberatung.
 - Rohdaten werden nie verändert oder gelöscht; Korrekturen sind eigene Overrides mit Audit-Log.
 - Fehlende Daten (Kurs, Kostenbasis) werden nie stillschweigend als 0 angenommen, sondern landen in der Review-Queue.
 - Abhängigkeitsrichtung: `Domain` ← `Application` ← `Infrastructure`/`Importers`/`Api`; `TaxEngine` ← nur `Domain`.
-- Keine Geheimnisse (API-Keys, Passwörter) in Code, Commits, Issues oder Logs.
+- Keine Geheimnisse (API-Keys, Passwörter) in Code, Commits, Issues oder Logs. Lokal: .NET User Secrets; in der Datenbank nur verschlüsselt über `ISecretProtector`.
 
 ## Steuerregeln
 
@@ -46,4 +46,5 @@ ETFs folgen später. Die App ersetzt keine Steuerberatung.
 
 - P1 (Projektgerüst) ist umgesetzt; siehe `docs/02-architektur.md`.
 - P2 (Datenmodell) ist als Code und Doku umgesetzt; siehe `docs/03-datenmodell.md`. Die EF-Migration `Initial` fehlt noch (braucht .NET-SDK, siehe dort).
-- Hinweis: P1 und P2 wurden in einer Umgebung ohne Zugriff auf NuGet/npm geschrieben und noch nicht gebaut oder getestet. Vor dem Merge einmal `dotnet test`, `npm install && npm test` und `docker compose up --build` lokal ausführen und Fehler beheben.
+- P3 (Qualität, CI, Sicherheit) ist umgesetzt; siehe `docs/07-betrieb.md`. Frontend (Lint, Test, Build) wurde lokal geprüft, das Backend noch nicht.
+- Hinweis: P1 bis P3 wurden in einer Umgebung ohne Zugriff auf NuGet/npm geschrieben und noch nicht gebaut oder getestet. Vor dem Merge einmal `dotnet test`, `npm install && npm test` und `docker compose up --build` lokal ausführen und Fehler beheben.

@@ -24,5 +24,7 @@ WORKDIR /app
 COPY --from=build /app .
 ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
+# Schlüsselring-Volume (Data Protection) muss für den unprivilegierten Benutzer beschreibbar sein.
+RUN mkdir /keys && chown $APP_UID /keys
 USER $APP_UID
 ENTRYPOINT ["dotnet", "KryptoSteuer.Api.dll"]

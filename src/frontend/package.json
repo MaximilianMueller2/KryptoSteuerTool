@@ -7,7 +7,8 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "test": "ng test --watch=false",
-    "generate:api": "openapi-ts -i http://localhost:5080/openapi/v1.json -o src/app/api/generated -c @hey-api/client-angular"
+    "generate:api": "openapi-ts -i http://localhost:5080/openapi/v1.json -o src/app/api/generated -c @hey-api/client-angular",
+    "lint": "ng lint"
   },
   "engines": {
     "node": "^22.22.3 || ^24.15.0 || ^26.0.0"
@@ -29,8 +30,12 @@
     "@angular/build": "^22.0.0",
     "@angular/cli": "^22.0.0",
     "@angular/compiler-cli": "^22.0.0",
+    "@vitest/coverage-v8": "^4.1.12",
+    "angular-eslint": "^22.0.0",
+    "eslint": "^9.0.0",
     "jsdom": "^27.1.0",
     "typescript": "~6.0.0",
+    "typescript-eslint": "^8.0.0",
     "vitest": "^4.0.8"
   }
 }

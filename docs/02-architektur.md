@@ -92,6 +92,6 @@ Startreihenfolge: `postgres` gesund → `api` gesund → `frontend`.
 
 - Der Angular-Client wird noch nicht aus der OpenAPI-Spezifikation generiert, sondern ist für den
   Health-Aufruf von Hand geschrieben (Anleitung in der README).
-- Lint, CI, Coverage und Sicherheits-Scans folgen in P3.
+- CI, Coverage und Sicherheits-Scans: siehe [07-betrieb.md](07-betrieb.md) (P3).
 - Das Gerüst wurde ohne Zugriff auf NuGet und npm geschrieben und noch nicht gebaut; Paketversionen
   mit `*` und die Angular-22-Konfiguration müssen beim ersten lokalen Lauf bestätigt werden.
