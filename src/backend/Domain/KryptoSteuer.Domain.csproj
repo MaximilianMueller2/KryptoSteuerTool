@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Reine Fachlogik: keine Projekt- und keine Paketabhängigkeiten. -->
+  <PropertyGroup>
+    <RootNamespace>KryptoSteuer.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

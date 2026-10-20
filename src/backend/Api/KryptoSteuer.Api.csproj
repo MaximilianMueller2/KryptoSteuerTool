@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>KryptoSteuer.Api</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\KryptoSteuer.Application.csproj" />
+    <ProjectReference Include="..\Infrastructure\KryptoSteuer.Infrastructure.csproj" />
+    <ProjectReference Include="..\Importers\KryptoSteuer.Importers.csproj" />
+    <ProjectReference Include="..\TaxEngine\KryptoSteuer.TaxEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.*" />
+  </ItemGroup>
+</Project>
