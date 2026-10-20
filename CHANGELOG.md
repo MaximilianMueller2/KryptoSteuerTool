@@ -7,6 +7,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Hinzugefügt
 
+- Oberfläche (P22, erste Stufe): Navigation mit Steuerjahr (Berechnung, Summen nach § 23, § 22 und Futures, Entwurfshinweis, Änderungen zum letzten Lauf,
+  Einzelaufstellung mit CSV-Download), Import (Konto anlegen, Datei wählen, Vorschau, Festschreiben oder Verwerfen), Prüfung (Transfer auf eigenes Konto, Prüfbuchungen
+  einzeln oder gesammelt bestätigen, Entscheidungen zurücknehmen), Kurse (EZB-Kurse abrufen oder hochladen) und Status. Zahlen und Daten im deutschen Format.
 - Review-Queue (P10/P11, erste Stufe): `GET /api/review` zeigt die offenen Befunde mit möglichen Aktionen. Entscheidungen sind Overrides mit Audit-Log
   und lassen Buchungen und Rohdaten unverändert: `PUT /api/review/transfers/{id}/own-account` (Auszahlung ohne Gegenstück ist ein steuerneutraler
   Transfer auf ein eigenes, bestehendes oder neu angelegtes Wallet-Konto; Lots wandern mit Anschaffungsdatum und Kosten), `PUT /api/review/transactions/{id}/acknowledge`
