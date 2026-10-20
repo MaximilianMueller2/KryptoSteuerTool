@@ -22,6 +22,20 @@ public class LotInvariantProperties
     // Anteile bei Teilverbräuchen werden auf 28 Stellen verteilt; die Prüfungen vergleichen mit einer Toleranz weit unter einem Cent.
     private const decimal Tolerance = 0.000000001m;
 
+    /// <summary>Deterministischer Zahlengenerator für reproduzierbare Testfolgen (kein Sicherheitskontext).</summary>
+    private sealed class Lcg(int seed)
+    {
+        private ulong _state = (ulong)(uint)seed * 6364136223846793005UL + 1442695040888963407UL;
+
+        public int Next(int maxExclusive) => Next(0, maxExclusive);
+
+        public int Next(int minInclusive, int maxExclusive)
+        {
+            _state = _state * 6364136223846793005UL + 1442695040888963407UL;
+            return minInclusive + (int)((_state >> 33) % (ulong)(maxExclusive - minInclusive));
+        }
+    }
+
     private static bool Same(decimal a, decimal b) => Math.Abs(a - b) <= Tolerance;
 
     private sealed record Built(List<Transaction> Transactions, Dictionary<(Guid, Guid), decimal> Holdings, decimal TotalCost, decimal TotalSoldProceeds, decimal SoldQuantity);
@@ -29,7 +43,7 @@ public class LotInvariantProperties
     /// <summary>Baut aus einem Startwert eine gültige Folge: Verkäufe nie über den Bestand, Transfers mit kleiner Gebühr.</summary>
     private static Built Build(int seed, int length, bool transferFees)
     {
-        var rng = new System.Random(seed);
+        var rng = new Lcg(seed);
         var holdings = new Dictionary<(Guid, Guid), decimal>();
         var txs = new List<Transaction>();
         var t0 = new DateTimeOffset(2025, 1, 1, 10, 0, 0, TimeSpan.Zero);
