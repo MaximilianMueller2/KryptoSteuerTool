@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
       <span class="title" i18n="@@app.title">Krypto-Steuer</span>
       <nav>
         <a matButton routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" i18n="@@nav.year">Steuerjahr</a>
+        <a matButton routerLink="/konten" routerLinkActive="active" i18n="@@nav.accounts">Konten</a>
         <a matButton routerLink="/import" routerLinkActive="active" i18n="@@nav.import">Import</a>
         <a matButton routerLink="/pruefung" routerLinkActive="active" i18n="@@nav.review">Prüfung</a>
         <a matButton routerLink="/kurse" routerLinkActive="active" i18n="@@nav.prices">Kurse</a>

@@ -8,6 +8,11 @@ export const routes: Routes = [
     title: 'Steuerjahr – Krypto-Steuer',
   },
   {
+    path: 'konten',
+    loadComponent: () => import('./accounts/accounts-page').then((m) => m.AccountsPage),
+    title: 'Konten – Krypto-Steuer',
+  },
+  {
     path: 'import',
     loadComponent: () => import('./imports/import-page').then((m) => m.ImportPage),
     title: 'Import – Krypto-Steuer',

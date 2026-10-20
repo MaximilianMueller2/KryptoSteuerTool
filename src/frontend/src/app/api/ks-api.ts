@@ -3,10 +3,13 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   Account,
+  BitgetStatus,
+  BitgetSyncResult,
   CreateAccountRequest,
   DecisionView,
   DisposalReport,
   EcbImportResult,
+  Holding,
   ImportRun,
   ReviewList,
   TaxRunRequest,
@@ -66,6 +69,26 @@ export class KsApi {
     const query = new URLSearchParams({ reform: String(reform) });
     if (name.trim()) query.set('name', name.trim());
     return `/api/reports/${year}/${format}?${query.toString()}`;
+  }
+
+  holdings(): Observable<Holding[]> {
+    return this.http.get<Holding[]>('/api/tax/holdings');
+  }
+
+  bitgetStatus(accountId: string): Observable<BitgetStatus> {
+    return this.http.get<BitgetStatus>(`/api/accounts/${accountId}/bitget`);
+  }
+
+  saveBitgetCredentials(accountId: string, credentials: { apiKey: string; secret: string; passphrase: string }): Observable<BitgetStatus> {
+    return this.http.put<BitgetStatus>(`/api/accounts/${accountId}/bitget`, credentials);
+  }
+
+  deleteBitgetCredentials(accountId: string): Observable<void> {
+    return this.http.delete<void>(`/api/accounts/${accountId}/bitget`);
+  }
+
+  syncBitget(accountId: string): Observable<BitgetSyncResult> {
+    return this.http.post<BitgetSyncResult>(`/api/accounts/${accountId}/bitget/sync`, {});
   }
 
   review(): Observable<ReviewList> {

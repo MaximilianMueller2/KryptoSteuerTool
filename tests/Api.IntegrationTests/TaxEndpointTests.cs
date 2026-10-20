@@ -245,4 +245,16 @@ public sealed class TaxEndpointTests : IAsyncLifetime
         (await _client.GetAsync("/api/reports/1900/xlsx")).StatusCode.Should().Be(HttpStatusCode.BadRequest);
         (await _client.GetAsync("/api/reports/1900/csv")).StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    [Fact]
+    public async Task Holdings_lists_open_lots_per_account_and_asset()
+    {
+        await ImportTradeRepublic();
+        var holdings = await (await _client.GetAsync("/api/tax/holdings")).Content.ReadFromJsonAsync<JsonElement>();
+
+        var rows = holdings.EnumerateArray().ToList();
+        rows.Should().NotBeEmpty();
+        rows.Should().OnlyContain(r => r.GetProperty("account").GetString() == "Trade Republic" && r.GetProperty("quantity").GetDecimal() > 0 && r.GetProperty("costEur").GetDecimal() > 0);
+        rows.Select(r => r.GetProperty("asset").GetString()).Should().OnlyHaveUniqueItems().And.Contain("XRP");
+    }
 }

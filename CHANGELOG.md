@@ -7,6 +7,8 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Hinzugefügt
 
+- Seite „Konten“: Bitget-API-Key hinterlegen (Secret und Passphrase als Passwortfelder, nach dem Speichern aus dem Formular entfernt, Rechte-Warnungen), „Jetzt synchronisieren“ mit Ergebnis,
+  nicht abrufbaren Abschnitten und Saldo-Abweichungen sowie Bestandstabelle je Konto und Asset. Neuer Endpunkt `GET /api/tax/holdings` (offene Lots, Kosten in EUR).
 - Steuerreport (P25): `GET /api/reports/{jahr}/pdf|xlsx|csv` mit Deckblatt (Entwurf/final, Hash), Zusammenfassung zum Eintragen (Anlage SO, KAP), Einzelaufstellung,
   laufenden Einkünften, Bestand zum 31.12., Korrekturen aus dem Audit-Log und Quellenliste; neues Projekt `KryptoSteuer.Reports` (QuestPDF, ClosedXML). Downloads in der Oberfläche.
 - Oberfläche (P22, erste Stufe): Navigation mit Steuerjahr (Berechnung, Summen nach § 23, § 22 und Futures, Entwurfshinweis, Änderungen zum letzten Lauf,

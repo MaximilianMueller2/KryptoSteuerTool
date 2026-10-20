@@ -177,3 +177,37 @@ export interface EcbImportResult {
   pricesStored: number;
   warning: string | null;
 }
+
+export interface Holding {
+  accountId: string;
+  account: string;
+  asset: string;
+  quantity: number;
+  costEur: number;
+  lots: number;
+  oldestAcquired: string;
+  nextTaxFreeFrom: string;
+}
+
+export interface BitgetStatus {
+  configured: boolean;
+  accountType: string | null;
+  warnings: string[];
+  lastSyncAtUtc: string | null;
+  lastSyncSummary: string | null;
+}
+
+export interface BalanceMismatch {
+  symbol: string;
+  exchangeBalance: number;
+  computedHolding: number;
+  difference: number;
+}
+
+export interface BitgetSyncResult {
+  import: ImportReport;
+  failedSections: string[];
+  warnings: string[];
+  balanceMismatches: BalanceMismatch[];
+  balanceCheckSkipped: string | null;
+}

@@ -57,6 +57,17 @@ public static class TaxEndpoints
             .WithSummary("Einzelaufstellung der Veräußerungen eines Jahres (JSON, auf Cent gerundet)")
             .Produces<DisposalReport>();
 
+        tax.MapGet("/holdings", async (TaxRunService service, IAccountRepository accounts, TimeProvider clock, CancellationToken cancellationToken) =>
+            {
+                // Bestand heute: alle Buchungen, ohne Jahresgrenze.
+                var computed = await service.ComputeAsync(new TaxRunRequest { Year = clock.GetUtcNow().Year }, cancellationToken);
+                var names = (await accounts.ListAsync(cancellationToken)).ToDictionary(a => a.Id, a => a.Name);
+                return Results.Ok(HoldingsReport.Build(computed.Result, computed.Input.Assets, names));
+            })
+            .WithName("Holdings")
+            .WithSummary("Aktueller Bestand je Konto und Asset (offene Lots, Kosten in EUR)")
+            .Produces<IReadOnlyList<HoldingView>>();
+
         var prices = app.MapGroup("/api/prices").WithTags("Kurse");
 
         prices.MapPost("/ecb", async (IFormFile file, PriceService service, CancellationToken cancellationToken) =>
