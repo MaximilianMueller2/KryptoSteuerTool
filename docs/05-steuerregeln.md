@@ -105,6 +105,14 @@ Die Zeilenabdeckung der TaxEngine liegt bei 99 % (CI-Mindestwert 95 %).
 - Ein Lauf speichert Parameter, Regelsatz-Version, Eingabe-Hash und Ergebnis-Snapshot. Gleiche Eingabe ergibt gleichen Hash; Änderungen
   werden gegenüber dem letzten Lauf desselben Jahres aufgelistet.
 
+## Entscheidungen des Nutzers (Review-Queue)
+
+- Auszahlung ohne importiertes Gegenstück, die auf ein eigenes Konto ging: Der Nutzer wählt ein Zielkonto oder legt ein Wallet an. Die Engine bildet einen
+  synthetischen Eingang zum Zeitpunkt der Auszahlung; die Lots wandern mit ursprünglichem Anschaffungsdatum und Kosten (steuerneutral, Haltefrist läuft weiter).
+  Annahme: Es kam die volle Menge an, eine Netzwerkgebühr ist nicht bekannt. Spätere Verkäufe vom Zielkonto brauchen dessen Import; ohne ihn bleibt der Bestand dort offen.
+- Geprüfte Buchungen (z. B. Wertpapier-Kapitalmaßnahmen) können bestätigt werden; sie bleiben unberücksichtigt, erzeugen aber keinen Befund mehr.
+- Jede Entscheidung steht im Audit-Log und lässt sich zurücknehmen. Die Rohdaten bleiben unverändert.
+
 ## Annahmen und offene Punkte
 
 - Rechtsstand und BMF-Rn. sind aus dem Katalog übernommen, nicht online geprüft.

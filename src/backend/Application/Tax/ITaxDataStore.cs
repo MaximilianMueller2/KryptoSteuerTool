@@ -12,6 +12,8 @@ public interface ITaxDataStore
 
     Task<IReadOnlyList<Price>> GetPricesAsync(CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<ReviewDecision>> GetDecisionsAsync(CancellationToken cancellationToken);
+
     Task AddRunAsync(TaxRun run, CancellationToken cancellationToken);
 
     Task<TaxRun?> GetLatestRunAsync(int year, CancellationToken cancellationToken);

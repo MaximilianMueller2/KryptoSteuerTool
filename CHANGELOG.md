@@ -7,6 +7,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Hinzugefügt
 
+- Review-Queue (P10/P11, erste Stufe): `GET /api/review` zeigt die offenen Befunde mit möglichen Aktionen. Entscheidungen sind Overrides mit Audit-Log
+  und lassen Buchungen und Rohdaten unverändert: `PUT /api/review/transfers/{id}/own-account` (Auszahlung ohne Gegenstück ist ein steuerneutraler
+  Transfer auf ein eigenes, bestehendes oder neu angelegtes Wallet-Konto; Lots wandern mit Anschaffungsdatum und Kosten), `PUT /api/review/transactions/{id}/acknowledge`
+  (Prüfbuchung bestätigt, ohne Wirkung auf die Berechnung), `DELETE /api/review/decisions/{id}`. Migration `ReviewDecisions`; Entscheidungen fließen in den Eingabe-Hash ein.
 - Berechnungslauf: `POST /api/tax/runs` (Steuerjahr, Einstellungen, Angaben des Nutzers) speichert Parameter, SHA-256 der Eingabedaten und
   Ergebnis-Snapshot; zeigt Unterschiede zum letzten Lauf. `GET /api/tax/runs/{id}`; Läufe mit offenen Befunden gelten als Entwurf.
 - Einzelaufstellung der Veräußerungen: `GET /api/tax/years/{jahr}/disposals` (JSON) und `.../disposals.csv` (deutsches Zahlenformat, BOM).

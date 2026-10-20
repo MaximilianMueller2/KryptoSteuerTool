@@ -223,3 +223,15 @@ internal sealed class ReviewItemConfiguration : IEntityTypeConfiguration<ReviewI
         b.HasIndex(x => new { x.AccountId, x.AssetId });
     }
 }
+
+internal sealed class ReviewDecisionConfiguration : IEntityTypeConfiguration<ReviewDecision>
+{
+    public void Configure(EntityTypeBuilder<ReviewDecision> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(30);
+        b.HasOne<Transaction>().WithMany().HasForeignKey(x => x.TransactionId).OnDelete(DeleteBehavior.Restrict);
+        b.HasOne<Account>().WithMany().HasForeignKey(x => x.TargetAccountId).OnDelete(DeleteBehavior.Restrict);
+        b.HasIndex(x => x.TransactionId).IsUnique();
+    }
+}

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 
 namespace KryptoSteuer.Api.IntegrationTests;
@@ -102,5 +103,74 @@ public sealed class TaxEndpointTests : IAsyncLifetime
         manual.StatusCode.Should().Be(HttpStatusCode.OK);
         var list = await (await _client.GetAsync("/api/prices")).Content.ReadFromJsonAsync<JsonElement>();
         list.GetArrayLength().Should().BeGreaterThan(0);
+    }
+
+    private async Task<JsonElement> OpenReview(string kind)
+    {
+        var review = await (await _client.GetAsync("/api/review")).Content.ReadFromJsonAsync<JsonElement>();
+        return review.GetProperty("open").EnumerateArray().First(i => i.GetProperty("kind").GetString() == kind);
+    }
+
+    private async Task<int> OpenCount(string kind)
+    {
+        var review = await (await _client.GetAsync("/api/review")).Content.ReadFromJsonAsync<JsonElement>();
+        return review.GetProperty("open").EnumerateArray().Count(i => i.GetProperty("kind").GetString() == kind);
+    }
+
+    [Fact]
+    public async Task Own_transfer_decision_resolves_the_finding_is_audited_and_can_be_revoked()
+    {
+        await ImportTradeRepublic();
+        var item = await OpenReview("UnmatchedTransferOut");
+        item.GetProperty("actions").EnumerateArray().Select(a => a.GetString()).Should().Contain("transfer-to-own-account");
+        var txId = item.GetProperty("transactionId").GetGuid();
+        var before = (await (await _client.PostAsJsonAsync("/api/tax/runs", new { year = 2026 })).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("inputHash").GetString();
+
+        var decided = await _client.PutAsJsonAsync($"/api/review/transfers/{txId}/own-account", new { newAccountName = "Bitget Wallet", note = "SOL auf Bitget Wallet" });
+        decided.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        (await OpenCount("UnmatchedTransferOut")).Should().Be(0);
+        var run = await (await _client.PostAsJsonAsync("/api/tax/runs", new { year = 2026 })).Content.ReadFromJsonAsync<JsonElement>();
+        run.GetProperty("counts").GetProperty("transfers").GetInt32().Should().Be(1);
+        run.GetProperty("inputHash").GetString().Should().NotBe(before);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<KryptoSteuer.Infrastructure.Persistence.AppDbContext>();
+            db.AuditLog.Count(a => a.EntityType == "ReviewDecision").Should().Be(1);
+            db.Accounts.Count(a => a.Name == "Bitget Wallet").Should().Be(1);
+        }
+
+        (await _client.DeleteAsync($"/api/review/decisions/{txId}")).StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await _client.DeleteAsync($"/api/review/decisions/{txId}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await OpenCount("UnmatchedTransferOut")).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Review_decisions_validate_their_input()
+    {
+        await ImportTradeRepublic();
+        var txId = (await OpenReview("UnmatchedTransferOut")).GetProperty("transactionId").GetGuid();
+
+        (await _client.PutAsJsonAsync($"/api/review/transfers/{txId}/own-account", new { })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await _client.PutAsJsonAsync($"/api/review/transfers/{txId}/own-account", new { targetAccountId = Guid.NewGuid() })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await _client.PutAsJsonAsync($"/api/review/transfers/{Guid.NewGuid()}/own-account", new { newAccountName = "X" })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        // eine normale Buchung ist keine Auszahlung und hat keinen Prüfstatus
+        var review = await OpenReview("TransactionNeedsReview");
+        var reviewTx = review.GetProperty("transactionId").GetGuid();
+        (await _client.PutAsJsonAsync($"/api/review/transfers/{reviewTx}/own-account", new { newAccountName = "X" })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Acknowledging_a_review_transaction_removes_it_from_the_open_list()
+    {
+        await ImportTradeRepublic();
+        var open = await OpenCount("TransactionNeedsReview");
+        open.Should().BeGreaterThan(0);
+        var txId = (await OpenReview("TransactionNeedsReview")).GetProperty("transactionId").GetGuid();
+
+        (await _client.PutAsJsonAsync($"/api/review/transactions/{txId}/acknowledge", new { note = "Wertpapier, nicht Krypto" })).StatusCode.Should().Be(HttpStatusCode.OK);
+        (await OpenCount("TransactionNeedsReview")).Should().Be(open - 1);
+        (await _client.PutAsJsonAsync($"/api/review/transactions/{Guid.NewGuid()}/acknowledge", new { })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

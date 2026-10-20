@@ -23,6 +23,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Lot> Lots => Set<Lot>();
     public DbSet<Disposal> Disposals => Set<Disposal>();
     public DbSet<TaxRun> TaxRuns => Set<TaxRun>();
+    public DbSet<ReviewDecision> ReviewDecisions => Set<ReviewDecision>();
     public DbSet<AuditLogEntry> AuditLog => Set<AuditLogEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>

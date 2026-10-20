@@ -56,6 +56,7 @@ public static class DependencyInjection
         services.AddScoped<EfTaxStore>();
         services.AddScoped<ITaxDataStore>(sp => sp.GetRequiredService<EfTaxStore>());
         services.AddScoped<IPriceStore>(sp => sp.GetRequiredService<EfTaxStore>());
+        services.AddScoped<IReviewStore>(sp => sp.GetRequiredService<EfTaxStore>());
         return services;
     }
 }

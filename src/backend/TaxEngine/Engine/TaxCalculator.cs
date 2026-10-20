@@ -99,7 +99,33 @@ public static class TaxCalculator
 
             var match = TransferMatcher.Match(ordered, input.Assets, _settings);
             foreach (var m in match.Matches) { _matchByOut[m.Out.Id] = m; _matchByIn[m.In.Id] = m; }
+            var unmatchedOut = new List<(Transaction Tx, string Hint)>();
+            var synthetic = false;
             foreach (var (tx, hint) in match.UnmatchedOut)
+            {
+                // Entscheidung des Nutzers: Ziel ist ein eigenes Konto, dessen Eingang nicht importiert ist.
+                if (input.Decisions.OwnAccountTransfers.TryGetValue(tx.Id, out var target) && target != tx.AccountId)
+                {
+                    var (assetId, qty) = TransferMatcher.Quantity(tx);
+                    var inTx = new Transaction
+                    {
+                        Id = Id("decision-in", tx.Id), Type = TransactionType.TransferIn, TimestampUtc = tx.TimestampUtc, AccountId = target,
+                        Source = "decision", ExternalId = $"decision:{tx.Id}",
+                        Legs = [new TransactionLeg { AssetId = assetId, Direction = LegDirection.In, Amount = qty }],
+                    };
+                    var decided = new TransferMatch(tx, inTx, assetId, qty, qty, 1m);
+                    _matchByOut[tx.Id] = decided;
+                    _matchByIn[inTx.Id] = decided;
+                    ordered.Add(inTx);
+                    synthetic = true;
+                }
+                else unmatchedOut.Add((tx, hint));
+            }
+
+            if (synthetic)
+                ordered = ordered.OrderBy(t => t.TimestampUtc).ThenBy(t => t.ExternalId ?? string.Empty, StringComparer.Ordinal).ThenBy(t => t.Id).ToList();
+
+            foreach (var (tx, hint) in unmatchedOut)
                 Finding(FindingKind.UnmatchedTransferOut,
                     $"Auszahlung ohne Gegenstück ({Describe(tx)}). Die Lots bleiben im Quellkonto. {hint} Entscheidung nötig: eigenes externes Konto, Verkauf außerhalb, Schenkung oder Verlust.", tx, AssetIdOf(tx));
             foreach (var tx in match.UnmatchedIn)
@@ -133,6 +159,7 @@ public static class TaxCalculator
         {
             if (tx.Status == TransactionStatus.NeedsReview)
             {
+                if (input.Decisions.Acknowledged.Contains(tx.Id)) return; // vom Nutzer geprüft, ohne Wirkung auf die Berechnung
                 Finding(FindingKind.TransactionNeedsReview, $"Buchung zur Prüfung: {tx.Note ?? tx.Type.ToString()} ({Describe(tx)}).", tx, AssetIdOf(tx));
                 return;
             }

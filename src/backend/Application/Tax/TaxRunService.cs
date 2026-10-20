@@ -79,12 +79,16 @@ public sealed class TaxRunService(ITaxDataStore store, TimeProvider clock)
         var book = new InMemoryPriceBook();
         foreach (var p in priceRows) book.Add(p.AssetId, p.TimestampUtc, p.EurPrice, p.Source);
 
-        var input = TaxEngineInput.Create(transactions, assets, book, request.ToSettings());
+        var decisionRows = await store.GetDecisionsAsync(cancellationToken);
+        var decisions = new EngineDecisions(
+            decisionRows.Where(d => d is { Kind: ReviewDecisionKind.TransferToOwnAccount, TargetAccountId: not null }).ToDictionary(d => d.TransactionId, d => d.TargetAccountId!.Value),
+            decisionRows.Where(d => d.Kind == ReviewDecisionKind.Acknowledged).Select(d => d.TransactionId).ToHashSet());
+        var input = TaxEngineInput.Create(transactions, assets, book, request.ToSettings()) with { Decisions = decisions };
         var result = TaxCalculator.Calculate(input);
         var summary = YearlyAggregator.Aggregate(input, result, request.ToYearInputs());
         var counts = new TaxRunCounts(result.Lots.Count, result.Disposals.Count, result.Incomes.Count, result.Futures.Count,
             result.Transfers.Count, result.Findings.Count, transactions.Count);
-        return new ComputedRun(input, result, summary, counts, HashOf(transactions, assets, priceRows, request, input));
+        return new ComputedRun(input, result, summary, counts, HashOf(transactions, assets, priceRows, decisionRows, request, input));
     }
 
     public sealed record ComputedRun(TaxEngineInput Input, TaxEngineResult Result, YearSummary Summary, TaxRunCounts Counts, string InputHash);
@@ -102,7 +106,7 @@ public sealed class TaxRunService(ITaxDataStore store, TimeProvider clock)
 
     /// <summary>SHA-256 über alle Eingaben: Buchungen, Assets, Kurse, Einstellungen und Regelsatz. Gleiche Eingabe ergibt gleichen Hash.</summary>
     private static string HashOf(
-        IReadOnlyList<Transaction> transactions, IReadOnlyList<Asset> assets, IReadOnlyList<Price> prices, TaxRunRequest request, TaxEngineInput input)
+        IReadOnlyList<Transaction> transactions, IReadOnlyList<Asset> assets, IReadOnlyList<Price> prices, IReadOnlyList<ReviewDecision> decisions, TaxRunRequest request, TaxEngineInput input)
     {
         var sb = new StringBuilder();
         foreach (var t in transactions.OrderBy(t => t.TimestampUtc).ThenBy(t => t.ExternalId, StringComparer.Ordinal).ThenBy(t => t.Id))
@@ -117,6 +121,8 @@ public sealed class TaxRunService(ITaxDataStore store, TimeProvider clock)
         foreach (var a in assets.OrderBy(a => a.Id)) sb.Append("asset|").Append(a.Id).Append('|').Append(a.Symbol).Append('|').Append(a.Class).Append('\n');
         foreach (var p in prices.OrderBy(p => p.AssetId).ThenBy(p => p.TimestampUtc).ThenBy(p => p.Source, StringComparer.Ordinal))
             sb.Append("price|").Append(p.AssetId).Append('|').Append(p.TimestampUtc.UtcTicks).Append('|').Append(p.EurPrice.ToString(CultureInfo.InvariantCulture)).Append('|').Append(p.Source).Append('\n');
+        foreach (var d in decisions.OrderBy(d => d.TransactionId))
+            sb.Append("decision|").Append(d.TransactionId).Append('|').Append(d.Kind).Append('|').Append(d.TargetAccountId).Append('\n');
         sb.Append("request|").Append(JsonSerializer.Serialize(request, Json)).Append('\n');
         sb.Append("rules|").Append(RuleSetLabel(input));
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sb.ToString()))).ToLowerInvariant();

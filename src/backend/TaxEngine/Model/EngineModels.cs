@@ -13,10 +13,22 @@ public sealed record TaxEngineInput(
     RuleSet Reform,
     TaxSettings Settings)
 {
+    /// <summary>Entscheidungen des Nutzers aus der Review-Queue.</summary>
+    public EngineDecisions Decisions { get; init; } = EngineDecisions.None;
+
     public static TaxEngineInput Create(
         IReadOnlyList<Transaction> transactions, IReadOnlyCollection<Asset> assets, IPriceBook? prices = null, TaxSettings? settings = null) =>
         new(transactions, assets.ToDictionary(a => a.Id), prices ?? new InMemoryPriceBook(),
             RuleSetCatalog.DeEStG23, RuleSetCatalog.DeReform2027, settings ?? new TaxSettings());
+}
+
+/// <summary>
+/// Entscheidungen des Nutzers: <see cref="OwnAccountTransfers"/> ordnet eine Auszahlung ohne Gegenstück einem eigenen Zielkonto zu
+/// (Auszahlungs-ID zu Konto-ID, steuerneutral, Lots wandern mit); <see cref="Acknowledged"/> sind geprüfte Buchungen ohne Wirkung auf die Berechnung.
+/// </summary>
+public sealed record EngineDecisions(IReadOnlyDictionary<Guid, Guid> OwnAccountTransfers, IReadOnlySet<Guid> Acknowledged)
+{
+    public static readonly EngineDecisions None = new(new Dictionary<Guid, Guid>(), new HashSet<Guid>());
 }
 
 public enum LotKind { Purchase, Swap, Income, Airdrop, Transfer }

@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddScoped<AccountUseCases>();
         services.AddScoped<PriceService>();
         services.AddScoped<TaxRunService>();
+        services.AddScoped<ReviewService>();
         return services;
     }
 }

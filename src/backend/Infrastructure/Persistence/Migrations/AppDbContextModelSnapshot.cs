@@ -429,6 +429,39 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                     b.ToTable("RawRecords");
                 });
 
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ReviewDecision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TargetAccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TargetAccountId");
+
+                    b.HasIndex("TransactionId")
+                        .IsUnique();
+
+                    b.ToTable("ReviewDecisions");
+                });
+
             modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ReviewItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -712,6 +745,20 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                     b.HasOne("KryptoSteuer.Domain.Ledger.Asset", null)
                         .WithMany()
                         .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ReviewDecision", b =>
+                {
+                    b.HasOne("KryptoSteuer.Domain.Ledger.Account", null)
+                        .WithMany()
+                        .HasForeignKey("TargetAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("KryptoSteuer.Domain.Ledger.Transaction", null)
+                        .WithMany()
+                        .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
