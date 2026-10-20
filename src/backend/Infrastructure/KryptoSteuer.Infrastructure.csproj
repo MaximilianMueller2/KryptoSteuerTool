@@ -9,6 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Explizit, damit alle abhängigen Projekte dieselbe EF-Core-Version wie das Design-Paket auflösen. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.*" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.*">
       <PrivateAssets>all</PrivateAssets>

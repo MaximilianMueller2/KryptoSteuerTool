@@ -7,8 +7,7 @@ namespace KryptoSteuer.Api.IntegrationTests;
 /// <summary>Braucht einen laufenden Docker-Daemon (Testcontainers).</summary>
 public sealed class HealthEndpointTests : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:17-alpine")
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17-alpine")
         .Build();
 
     public Task InitializeAsync() => _postgres.StartAsync();

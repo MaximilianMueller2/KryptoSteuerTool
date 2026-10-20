@@ -45,6 +45,6 @@ ETFs folgen später. Die App ersetzt keine Steuerberatung.
 ## Stand der Umsetzung
 
 - P1 (Projektgerüst) ist umgesetzt; siehe `docs/02-architektur.md`.
-- P2 (Datenmodell) ist als Code und Doku umgesetzt; siehe `docs/03-datenmodell.md`. Die EF-Migration `Initial` fehlt noch (braucht .NET-SDK, siehe dort).
+- P2 (Datenmodell) ist als Code und Doku umgesetzt; siehe `docs/03-datenmodell.md`. Die EF-Migration `Initial` liegt unter `src/backend/Infrastructure/Persistence/Migrations`.
 - P3 (Qualität, CI, Sicherheit) ist umgesetzt; siehe `docs/07-betrieb.md`. Frontend (Lint, Test, Build) wurde lokal geprüft, das Backend noch nicht.
-- Hinweis: P1 bis P3 wurden in einer Umgebung ohne Zugriff auf NuGet/npm geschrieben und noch nicht gebaut oder getestet. Vor dem Merge einmal `dotnet test`, `npm install && npm test` und `docker compose up --build` lokal ausführen und Fehler beheben.
+- Geprüft (20.10.2026): `dotnet build` ohne Warnungen, `dotnet test` (47 Tests inkl. Testcontainers) grün, Frontend Lint/Test/Build grün, API gegen PostgreSQL gestartet (Migration, `/api/health`). Nicht geprüft: Docker-Image-Build und das Frontend-Image (in der Entwicklungsumgebung ohne Zugriff auf Docker Hub bzw. NuGet im Container); vor dem Merge einmal `docker compose up --build` lokal ausführen.

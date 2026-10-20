@@ -63,6 +63,14 @@ Zusätzlich: Menge > 0, höchstens ein Gebührenbein, Gebührenbeine sind ausgeh
 
 ## Migrationen
 
-Die erste Migration wird mit `dotnet ef migrations add Initial -p src/backend/Infrastructure -s src/backend/Api`
-erzeugt (Tool: `dotnet tool install --global dotnet-ef`). Sie ist noch nicht eingecheckt, weil das Modell
-in einer Umgebung ohne .NET-SDK entstand.
+Die Migration `Initial` liegt in `src/backend/Infrastructure/Persistence/Migrations`. Neue Migrationen:
+
+```bash
+dotnet tool restore                       # installiert dotnet-ef aus dotnet-tools.json
+ASPNETCORE_ENVIRONMENT=Development dotnet dotnet-ef migrations add <Name> \
+  -p src/backend/Infrastructure -s src/backend/Api -o Persistence/Migrations
+```
+
+Die API wendet Migrationen beim Start an, wenn `Database:MigrateOnStartup` auf `true` steht (in
+`docker-compose.yml` gesetzt, sonst aus). Integrationstests (`LedgerPersistenceTests`) prüfen Migration,
+Idempotenz-Indizes, Genauigkeit der Mengen und die Unveränderlichkeit der Rohdaten gegen echtes PostgreSQL.

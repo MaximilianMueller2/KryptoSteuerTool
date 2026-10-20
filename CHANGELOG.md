@@ -25,3 +25,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 - Börsen-API-Keys werden über `ISecretProtector` (ASP.NET Data Protection) verschlüsselt; Schlüsselring im Volume
   `dpkeys` außerhalb der Datenbank. User Secrets für lokale Entwicklung.
 - ESLint (angular-eslint) im Frontend, `package-lock.json` eingecheckt, `docs/07-betrieb.md`.
+- EF-Core-Migration `Initial`, automatische Migration beim Start (`Database:MigrateOnStartup`), Persistenz-Integrationstests.
+
+### Behoben
+
+- XML-Kommentar in `KryptoSteuer.Api.csproj` (`--` ist in XML-Kommentaren unzulässig) ließ das Projekt nicht laden.
+- Veralteter `PostgreSqlBuilder()`-Konstruktor (Testcontainers) ersetzt.
+- Uneinheitliche EF-Core-Versionen (10.0.4 gegen 10.0.13) zwischen den Projekten.
+- Assembly-Anker mit `[ExcludeFromCodeCoverage]`, damit die TaxEngine-Abdeckungsprüfung nicht an ihnen scheitert.
+- Docker-Volume `/keys` im API-Image für den unprivilegierten Benutzer beschreibbar.

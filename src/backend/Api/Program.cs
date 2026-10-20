@@ -2,6 +2,8 @@ using KryptoSteuer.Api;
 using KryptoSteuer.Application;
 using KryptoSteuer.Application.Health;
 using KryptoSteuer.Infrastructure;
+using KryptoSteuer.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,13 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
 var app = builder.Build();
+
+// Migrationen beim Start anwenden (in docker-compose.yml aktiviert); sonst bleibt die DB unberührt.
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
+}
 
 // Die OpenAPI-Spezifikation (/openapi/v1.json) ist die Quelle für den generierten Angular-Client.
 app.MapOpenApi();

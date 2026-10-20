@@ -29,6 +29,7 @@ services:
       ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-kryptosteuer};Username=${POSTGRES_USER:-kryptosteuer};Password=${POSTGRES_PASSWORD:-krypto_dev_only}"
       # Schlüsselring für verschlüsselte Börsen-API-Keys: eigenes Volume, nicht in der Datenbank.
       DataProtection__KeysPath: /keys
+      Database__MigrateOnStartup: "true"
     volumes:
       - dpkeys:/keys
     depends_on:

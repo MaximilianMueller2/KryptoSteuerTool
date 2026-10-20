@@ -13,7 +13,8 @@ Stand: P3. Deployment (Caddy, GHCR, `docker-compose.prod.yml`) folgt in einem sp
 - **Mindestabdeckung TaxEngine 95 %:** `scripts/check-coverage.py` liest die Cobertura-Berichte. Solange die
   TaxEngine noch keinen Code hat, wird die Prüfung übersprungen.
 - Lokal: `dotnet test src/backend/KryptoSteuer.sln`, im Frontend `npm run lint`, `npm test`, `npm run build`
-  (Node-Version laut `src/frontend/.nvmrc`).
+  (Node-Version laut `src/frontend/.nvmrc`). Mit npm 10 bricht `npm install` wegen eines npm-Bugs ab
+  (`Cannot read properties of null (reading 'edgesOut')`); Node 24 bringt npm 11 mit, dort läuft es.
 
 ## Branch-Schutz (Empfehlung für `main`)
 
