@@ -39,6 +39,10 @@ erDiagram
 | `Disposal` | Veräußerung je verbrauchtem Lot: Erlös, AK, Gebührenanteil, Gewinn, Haltetage, steuerpflichtig, Regelsatz-Version |
 | `TaxRun` | Berechnungslauf: Parameter, Regelsatz, Hash der Eingabedaten, Ergebnis-Snapshot |
 | `AuditLogEntry` | manuelle Änderung mit Vorher/Nachher und Begründung |
+| `ImportRun` | Importlauf mit roher Quelldatei (SHA-256), Status Pending/Committed und Bericht (P4) |
+| `ExchangeCredential` | Börsen-Zugang je Konto; Key, Secret und Passphrase nur verschlüsselt (P5) |
+| `SyncState` | letzter erfolgreicher Zeitpunkt je Konto und Endpunkt (P5) |
+| `ReviewItem` | Eintrag der Review-Queue, z. B. Saldo-Abweichung; Ausbau in P11 (P5) |
 
 ## Regeln
 

@@ -1,4 +1,5 @@
 using KryptoSteuer.Application.Accounts;
+using KryptoSteuer.Application.Bitget;
 using KryptoSteuer.Application.Health;
 using KryptoSteuer.Application.Imports;
 using KryptoSteuer.Application.Secrets;
@@ -48,6 +49,8 @@ public static class DependencyInjection
                     options.XmlRepository = new FileSystemXmlRepository(new DirectoryInfo(keysPath), loggerFactory);
             });
         services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
+
+        services.AddScoped<IBitgetSyncStore, EfBitgetSyncStore>();
         return services;
     }
 }

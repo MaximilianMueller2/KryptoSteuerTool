@@ -21,3 +21,7 @@ public enum LegDirection { In, Out }
 public enum TaxRegime { Alt, Neu }
 
 public enum ImportRunStatus { Pending, Committed }
+
+public enum ReviewItemKind { BalanceMismatch }
+
+public enum ReviewItemStatus { Open, Resolved }

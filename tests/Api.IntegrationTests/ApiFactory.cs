@@ -13,6 +13,7 @@ public sealed class ApiFactory(string connectionString, bool migrate = false) : 
             {
                 ["ConnectionStrings:Postgres"] = connectionString,
                 ["Database:MigrateOnStartup"] = migrate.ToString(),
+                ["Bitget:DailySync:Enabled"] = "false",
             }));
     }
 }

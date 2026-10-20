@@ -182,3 +182,43 @@ internal sealed class AuditLogEntryConfiguration : IEntityTypeConfiguration<Audi
         b.HasIndex(x => new { x.EntityType, x.EntityId });
     }
 }
+
+internal sealed class ExchangeCredentialConfiguration : IEntityTypeConfiguration<ExchangeCredential>
+{
+    public void Configure(EntityTypeBuilder<ExchangeCredential> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Provider).HasMaxLength(50).IsRequired();
+        b.Property(x => x.EncryptedApiKey).IsRequired();
+        b.Property(x => x.EncryptedSecret).IsRequired();
+        b.Property(x => x.EncryptedPassphrase).IsRequired();
+        b.Property(x => x.AccountType).HasMaxLength(20);
+        b.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
+        b.HasIndex(x => new { x.AccountId, x.Provider }).IsUnique();
+    }
+}
+
+internal sealed class SyncStateConfiguration : IEntityTypeConfiguration<SyncState>
+{
+    public void Configure(EntityTypeBuilder<SyncState> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Endpoint).HasMaxLength(50).IsRequired();
+        b.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
+        b.HasIndex(x => new { x.AccountId, x.Endpoint }).IsUnique();
+    }
+}
+
+internal sealed class ReviewItemConfiguration : IEntityTypeConfiguration<ReviewItem>
+{
+    public void Configure(EntityTypeBuilder<ReviewItem> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(30);
+        b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Reason).IsRequired();
+        b.Property(x => x.DetailsJson).HasColumnType("jsonb");
+        b.HasIndex(x => new { x.Status, x.Kind });
+        b.HasIndex(x => new { x.AccountId, x.AssetId });
+    }
+}

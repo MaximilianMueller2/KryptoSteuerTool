@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.*" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.*" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.*" />
   </ItemGroup>
 
   <!-- Gemeinsame Beispieldateien aus tests/fixtures. -->

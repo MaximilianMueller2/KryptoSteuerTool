@@ -10,7 +10,8 @@ public enum BitgetAccountType { Classic, Unified }
 public sealed record BitgetProbeResult(BitgetAccountType AccountType, IReadOnlyList<string> Warnings);
 
 public sealed record BitgetFetchResult(
-    string BundleJson, BitgetAccountType AccountType, IReadOnlyList<string> Warnings, IReadOnlyList<string> FailedSections);
+    string BundleJson, BitgetAccountType AccountType, IReadOnlyList<string> Warnings, IReadOnlyList<string> FailedSections,
+    IReadOnlyList<string> SucceededSections);
 
 /// <summary>
 /// Ruft die Bitget-API lesend ab: Kontotyp erkennen, Rechte prüfen, Historie in 30-Tage-Fenstern (höchstens 90 Tage)
@@ -73,10 +74,18 @@ public sealed class BitgetFetcher(IBitgetClient client, TimeProvider clock)
 
     // ---- Abruf -------------------------------------------------------------------------------------------
 
+    /// <summary>Abschnittsarten, die ein Abruf für den Kontotyp erzeugt (für den inkrementellen Sync).</summary>
+    public static IReadOnlyList<string> ExpectedSections(BitgetAccountType type) => type == BitgetAccountType.Classic
+        ? [BitgetBundle.SpotFills, BitgetBundle.SpotBills, BitgetBundle.Deposits, BitgetBundle.Withdrawals,
+           BitgetBundle.Convert, BitgetBundle.FuturesBills, BitgetBundle.EarnSavings]
+        : [BitgetBundle.UtaFills, BitgetBundle.UtaFinancial, BitgetBundle.UtaDeposits,
+           BitgetBundle.UtaWithdrawals, BitgetBundle.UtaConvert];
+
+    /// <summary>Kontotyp und Rechte werden geprüft, falls <paramref name="probe"/> nicht schon vorliegt.</summary>
     public async Task<BitgetFetchResult> FetchAsync(
-        DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken)
+        DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken, BitgetProbeResult? probe = null)
     {
-        var probe = await ProbeAsync(cancellationToken);
+        probe ??= await ProbeAsync(cancellationToken);
         var sections = new JsonArray();
         var failed = new List<string>();
         var symbols = new JsonArray();
@@ -202,7 +211,8 @@ public sealed class BitgetFetcher(IBitgetClient client, TimeProvider clock)
             ["sections"] = sections,
         };
 
-        return new BitgetFetchResult(bundle.ToJsonString(), probe.AccountType, probe.Warnings, failed);
+        var succeeded = sections.Select(x => x!["kind"]!.GetValue<string>()).ToList();
+        return new BitgetFetchResult(bundle.ToJsonString(), probe.AccountType, probe.Warnings, failed, succeeded);
     }
 
     // ---- Hilfsfunktionen ---------------------------------------------------------------------------------

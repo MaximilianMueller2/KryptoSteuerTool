@@ -32,6 +32,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   dazu `GET/POST /api/accounts`.
 - Importer `generic-csv` als Referenz, Beispieldateien unter `tests/fixtures/`, `docs/04-importe.md`.
 - Migration `ImportRuns` (Tabelle `ImportRuns`, `RawRecord.ContentHash`/`LineNumber`); neuer Transaktionstyp `Unknown`.
+- Bitget-API-Anbindung (P5): signierter, nur lesender HTTP-Client mit Zeitabgleich und Retry/Backoff, Kontotyp-Erkennung
+  (klassisch/UTA), Rechteprüfung mit Warnung, Abruf von Spot-Fills, Ein-/Auszahlungen, Bills, Futures, Convert und Earn in
+  30-Tage-Fenstern (höchstens 90 Tage) mit Cursor-Pagination, Importer `bitget-api`, inkrementeller Sync je Endpunkt,
+  täglicher Hintergrundjob, Saldo-Abgleich mit Review-Queue.
+- API: `PUT/GET/DELETE /api/accounts/{id}/bitget`, `POST /api/accounts/{id}/bitget/sync`, `GET /api/review-items`.
+- Entitäten `ExchangeCredential`, `SyncState`, `ReviewItem`; Migration `BitgetSync`; Doku mit Anleitung „Bitget-API-Key mit Leserechten anlegen“.
 
 ### Behoben
 

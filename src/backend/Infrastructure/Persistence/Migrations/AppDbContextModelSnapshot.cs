@@ -196,6 +196,56 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                     b.ToTable("Disposals");
                 });
 
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ExchangeCredential", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AccountType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EncryptedApiKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EncryptedPassphrase")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EncryptedSecret")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("LastSyncAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastSyncSummary")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PermissionWarnings")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId", "Provider")
+                        .IsUnique();
+
+                    b.ToTable("ExchangeCredentials");
+                });
+
             modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ImportRun", b =>
                 {
                     b.Property<Guid>("Id")
@@ -376,6 +426,72 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                     b.ToTable("RawRecords");
                 });
 
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ReviewItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AssetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DetailsJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId", "AssetId");
+
+                    b.HasIndex("Status", "Kind");
+
+                    b.ToTable("ReviewItems");
+                });
+
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.SyncState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTimeOffset>("LastSuccessfulUntilUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId", "Endpoint")
+                        .IsUnique();
+
+                    b.ToTable("SyncStates");
+                });
+
             modelBuilder.Entity("KryptoSteuer.Domain.Ledger.TaxRun", b =>
                 {
                     b.Property<Guid>("Id")
@@ -549,6 +665,15 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ExchangeCredential", b =>
+                {
+                    b.HasOne("KryptoSteuer.Domain.Ledger.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ImportRun", b =>
                 {
                     b.HasOne("KryptoSteuer.Domain.Ledger.Account", null)
@@ -585,6 +710,15 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("AssetId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.SyncState", b =>
+                {
+                    b.HasOne("KryptoSteuer.Domain.Ledger.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

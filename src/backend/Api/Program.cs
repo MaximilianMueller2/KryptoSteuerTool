@@ -1,4 +1,5 @@
 using KryptoSteuer.Api;
+using KryptoSteuer.Api.Bitget;
 using KryptoSteuer.Api.Endpoints;
 using KryptoSteuer.Application;
 using KryptoSteuer.Application.Health;
@@ -14,6 +15,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 builder.Services.AddImporters();
+builder.Services.AddBitgetSync(builder.Configuration);
 builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
@@ -50,6 +52,7 @@ app.MapGet("/api/health", async (GetHealthUseCase getHealth, CancellationToken c
 
 app.MapAccountEndpoints();
 app.MapImportEndpoints();
+app.MapBitgetEndpoints();
 
 app.Run();
 

@@ -9,8 +9,8 @@ nachvollziehbarer Jahresreport. Fokus Krypto; Aktien und ETFs folgen später.
 
 ## Stand
 
-P1 bis P4 sind umgesetzt: Projektgerüst, Datenmodell, CI und Import-Framework (siehe `docs/04-importe.md`).
-Es gibt noch keine Steuerlogik und noch keine Importer für Bitget und Trade Republic. Der Fahrplan steht im Prompt-Katalog.
+P1 bis P5 sind umgesetzt: Projektgerüst, Datenmodell, CI, Import-Framework und Bitget-API-Anbindung (siehe `docs/04-importe.md`).
+Es gibt noch keine Steuerlogik, keine CSV-Importer für Bitget und Trade Republic und keine Oberfläche für Importe. Der Fahrplan steht im Prompt-Katalog.
 
 ## Voraussetzungen
 

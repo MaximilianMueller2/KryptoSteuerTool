@@ -48,6 +48,13 @@ Data Protection verschlüsselt mit Schlüsseln, die **nicht** in der Datenbank l
   Backups des Schlüsselrings entsprechend schützen.
 - Die Schlüssel rotieren automatisch (Standard 90 Tage); alte Schlüssel bleiben zum Entschlüsseln erhalten.
 
+### Bitget-Sync
+
+Täglicher Hintergrundjob um 03:30 UTC für alle Konten mit hinterlegtem Bitget-Key; abschaltbar mit
+`Bitget__DailySync__Enabled=false` (Umgebungsvariable). Fehler eines Kontos stoppen die anderen nicht und stehen ohne
+Zugangsdaten im Log. Der Container braucht ausgehenden Zugriff auf `api.bitget.com:443`. Zugangsdaten und Schlüsselring
+siehe oben; ohne den Schlüsselring muss der Bitget-Key neu eingetragen werden.
+
 ### Pre-Commit-Hook aktivieren
 
 ```bash
