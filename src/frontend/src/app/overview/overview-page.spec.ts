@@ -60,7 +60,9 @@ describe('OverviewPage', () => {
     expect(el(fixture, 'draft')).toBeNull();
     expect(text(fixture, 'disposals')).toContain('SOL');
     expect(text(fixture, 'disposals')).toContain('04.01.2025');
-    expect(el(fixture, 'csv')?.getAttribute('href')).toBe('/api/tax/years/2025/disposals.csv');
+    expect(el(fixture, 'pdf')?.getAttribute('href')).toBe('/api/reports/2025/pdf?reform=false');
+    expect(el(fixture, 'xlsx')?.getAttribute('href')).toBe('/api/reports/2025/xlsx?reform=false');
+    expect(el(fixture, 'csv')?.getAttribute('href')).toBe('/api/reports/2025/csv?reform=false');
   });
 
   it('kennzeichnet einen Lauf mit offenen Befunden als Entwurf', async () => {
@@ -86,5 +88,21 @@ describe('OverviewPage', () => {
     await fixture.whenStable();
 
     expect(text(fixture, 'error')).toContain('außerhalb');
+  });
+
+  it('gibt den Namen für das Deckblatt in den Download-Adressen mit', async () => {
+    const { http, create } = setup(OverviewPage);
+    const fixture = create();
+    await fixture.whenStable();
+
+    const input = (fixture.nativeElement as HTMLElement).querySelector('input[name="taxpayer"]') as HTMLInputElement;
+    input.value = 'Erika Muster';
+    input.dispatchEvent(new Event('input'));
+    (el(fixture, 'run') as HTMLButtonElement).click();
+    http.expectOne('/api/tax/runs').flush(run(0));
+    http.expectOne((r) => r.url === '/api/tax/years/2025/disposals').flush(report);
+    await fixture.whenStable();
+
+    expect(el(fixture, 'pdf')?.getAttribute('href')).toBe('/api/reports/2025/pdf?reform=false&name=Erika+Muster');
   });
 });

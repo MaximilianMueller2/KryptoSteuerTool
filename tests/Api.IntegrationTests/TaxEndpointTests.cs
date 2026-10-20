@@ -173,4 +173,76 @@ public sealed class TaxEndpointTests : IAsyncLifetime
         (await OpenCount("TransactionNeedsReview")).Should().Be(open - 1);
         (await _client.PutAsJsonAsync($"/api/review/transactions/{Guid.NewGuid()}/acknowledge", new { })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    private async Task<ClosedXML.Excel.XLWorkbook> Workbook(string query = "", int year = 2024)
+    {
+        var response = await _client.GetAsync($"/api/reports/{year}/xlsx{query}");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        return new ClosedXML.Excel.XLWorkbook(new MemoryStream(await response.Content.ReadAsByteArrayAsync()));
+    }
+
+    [Fact]
+    public async Task Report_pdf_xlsx_and_csv_agree_to_the_cent_and_flag_drafts()
+    {
+        await ImportTradeRepublic();
+
+        var pdf = await _client.GetAsync("/api/reports/2024/pdf?name=Erika%20Muster");
+        pdf.StatusCode.Should().Be(HttpStatusCode.OK);
+        pdf.Content.Headers.ContentType!.MediaType.Should().Be("application/pdf");
+        var pdfBytes = await pdf.Content.ReadAsByteArrayAsync();
+        Encoding.ASCII.GetString(pdfBytes, 0, 5).Should().Be("%PDF-");
+        pdfBytes.Length.Should().BeGreaterThan(5000);
+
+        using var wb = await Workbook("?name=Erika%20Muster");
+        wb.Worksheets.Select(w => w.Name).Should().Equal("Deckblatt", "Zusammenfassung", "Veräußerungen", "Laufende Einkünfte", "Bestand 31.12.", "Korrekturen", "Quellen");
+        var cover = wb.Worksheet("Deckblatt");
+        cover.CellsUsed().Select(c => c.GetString()).Should().Contain(s => s.StartsWith("ENTWURF", StringComparison.Ordinal));
+        cover.CellsUsed().Select(c => c.GetString()).Should().Contain("Erika Muster");
+
+        // Summen im Blatt = Summe der gerundeten Zeilen = Einzelaufstellung der API
+        var sheet = wb.Worksheet("Veräußerungen");
+        var rows = sheet.RowsUsed().Skip(1).Where(r => r.Cell(1).GetString().Length > 0 && !r.Cell(1).GetString().StartsWith("Summe", StringComparison.Ordinal)).ToList();
+        rows.Should().NotBeEmpty();
+        var taxableGain = rows.Where(r => r.Cell(11).GetString() == "ja").Sum(r => r.Cell(10).GetValue<decimal>());
+        var api = await (await _client.GetAsync("/api/tax/years/2024/disposals")).Content.ReadFromJsonAsync<JsonElement>();
+        taxableGain.Should().Be(api.GetProperty("taxableNetEur").GetDecimal());
+        var summarySo = wb.Worksheet("Zusammenfassung").CellsUsed().First(c => c.GetString().StartsWith("Gewinn/Verlust", StringComparison.Ordinal)).CellRight().GetValue<decimal>();
+        summarySo.Should().Be(taxableGain);
+
+        var csv = Encoding.UTF8.GetString(await (await _client.GetAsync("/api/reports/2024/csv")).Content.ReadAsByteArrayAsync());
+        csv.Should().Contain("Summe steuerpflichtig (Netto);;;;;;;;;" + taxableGain.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("de-DE")));
+        csv.Split('\n').Count(l => l.StartsWith("SOL;", StringComparison.Ordinal)).Should().Be(rows.Count(r => r.Cell(1).GetString() == "SOL"));
+    }
+
+    [Fact]
+    public async Task Report_becomes_final_when_all_findings_are_resolved_and_lists_the_corrections()
+    {
+        await ImportTradeRepublic();
+        var review = await (await _client.GetAsync("/api/review")).Content.ReadFromJsonAsync<JsonElement>();
+        var resolved = review.GetProperty("open").GetArrayLength();
+        foreach (var item in review.GetProperty("open").EnumerateArray())
+        {
+            var tx = item.GetProperty("transactionId").GetGuid();
+            if (item.GetProperty("kind").GetString() == "TransactionNeedsReview")
+                await _client.PutAsJsonAsync($"/api/review/transactions/{tx}/acknowledge", new { note = "Wertpapier" });
+            else
+                await _client.PutAsJsonAsync($"/api/review/transfers/{tx}/own-account", new { newAccountName = "Bitget Wallet", note = "SOL Transfer" });
+        }
+
+        // Der Transfer liegt im Jahr 2026: der Bestand zum 31.12.2026 liegt im neuen Wallet-Konto.
+        using var wb = await Workbook(year: 2026);
+        wb.Worksheet("Deckblatt").CellsUsed().Select(c => c.GetString()).Should().Contain(s => s.StartsWith("final", StringComparison.Ordinal));
+        var audit = wb.Worksheet("Korrekturen");
+        audit.RowsUsed().Count().Should().Be(1 + resolved);
+        wb.Worksheet("Quellen").RowsUsed().Count().Should().Be(2);
+        wb.Worksheet("Bestand 31.12.").RowsUsed().Skip(1).Select(r => r.Cell(1).GetString()).Should().Contain("Bitget Wallet");
+    }
+
+    [Fact]
+    public async Task Report_rejects_invalid_years()
+    {
+        (await _client.GetAsync("/api/reports/1900/pdf")).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await _client.GetAsync("/api/reports/1900/xlsx")).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await _client.GetAsync("/api/reports/1900/csv")).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }

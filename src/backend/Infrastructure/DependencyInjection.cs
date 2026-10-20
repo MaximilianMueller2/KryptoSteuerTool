@@ -3,6 +3,7 @@ using KryptoSteuer.Application.Bitget;
 using KryptoSteuer.Application.Health;
 using KryptoSteuer.Application.Imports;
 using KryptoSteuer.Application.Prices;
+using KryptoSteuer.Application.Reports;
 using KryptoSteuer.Application.Tax;
 using KryptoSteuer.Application.Secrets;
 using KryptoSteuer.Infrastructure.Secrets;
@@ -57,6 +58,7 @@ public static class DependencyInjection
         services.AddScoped<ITaxDataStore>(sp => sp.GetRequiredService<EfTaxStore>());
         services.AddScoped<IPriceStore>(sp => sp.GetRequiredService<EfTaxStore>());
         services.AddScoped<IReviewStore>(sp => sp.GetRequiredService<EfTaxStore>());
+        services.AddScoped<IReportStore>(sp => sp.GetRequiredService<EfTaxStore>());
         return services;
     }
 }

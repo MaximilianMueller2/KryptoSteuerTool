@@ -7,6 +7,8 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Hinzugefügt
 
+- Steuerreport (P25): `GET /api/reports/{jahr}/pdf|xlsx|csv` mit Deckblatt (Entwurf/final, Hash), Zusammenfassung zum Eintragen (Anlage SO, KAP), Einzelaufstellung,
+  laufenden Einkünften, Bestand zum 31.12., Korrekturen aus dem Audit-Log und Quellenliste; neues Projekt `KryptoSteuer.Reports` (QuestPDF, ClosedXML). Downloads in der Oberfläche.
 - Oberfläche (P22, erste Stufe): Navigation mit Steuerjahr (Berechnung, Summen nach § 23, § 22 und Futures, Entwurfshinweis, Änderungen zum letzten Lauf,
   Einzelaufstellung mit CSV-Download), Import (Konto anlegen, Datei wählen, Vorschau, Festschreiben oder Verwerfen), Prüfung (Transfer auf eigenes Konto, Prüfbuchungen
   einzeln oder gesammelt bestätigen, Entscheidungen zurücknehmen), Kurse (EZB-Kurse abrufen oder hochladen) und Status. Zahlen und Daten im deutschen Format.

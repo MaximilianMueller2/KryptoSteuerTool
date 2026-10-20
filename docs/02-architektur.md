@@ -29,6 +29,7 @@ krypto-steuer/
 │  ├─ Infrastructure/           EF Core, PostgreSQL, spätere HTTP-Clients
 │  ├─ Importers/                später ein Ordner je Quelle
 │  ├─ TaxEngine/                Steuer-Engine, nur von Domain abhängig
+│  ├─ Reports/                  PDF- und Excel-Berichte (QuestPDF, ClosedXML), hängt von Application ab
 │  └─ Api/                      ASP.NET Core Web API, OpenAPI
 ├─ src/frontend/                Angular-App, Dockerfile, nginx.conf
 └─ tests/                       Domain.Tests, TaxEngine.Tests, Importers.Tests, Api.IntegrationTests
@@ -42,6 +43,9 @@ flowchart TD
   Api --> Infrastructure
   Api --> Importers
   Api --> TaxEngine
+  Api --> Reports
+  Reports --> Application
+  Application --> TaxEngine
   Infrastructure --> Application
   Importers --> Application
   Application --> Domain
@@ -55,6 +59,7 @@ Regeln, die Architekturtests absichern:
 - `Domain` verweist auf kein anderes Projekt.
 - `TaxEngine` verweist nur auf `Domain`.
 - `Importers` kennt weder `Infrastructure` noch `Api` noch `TaxEngine`.
+- `Reports` kennt weder `Infrastructure` noch `Api`.
 
 ## Health-Endpunkt als Referenz-Schnitt
 

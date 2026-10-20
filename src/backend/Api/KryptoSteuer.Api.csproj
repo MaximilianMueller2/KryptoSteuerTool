@@ -11,6 +11,7 @@
     <ProjectReference Include="..\Infrastructure\KryptoSteuer.Infrastructure.csproj" />
     <ProjectReference Include="..\Importers\KryptoSteuer.Importers.csproj" />
     <ProjectReference Include="..\TaxEngine\KryptoSteuer.TaxEngine.csproj" />
+    <ProjectReference Include="..\Reports\KryptoSteuer.Reports.csproj" />
   </ItemGroup>
 
   <ItemGroup>

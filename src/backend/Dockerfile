@@ -9,6 +9,7 @@ COPY src/backend/Application/*.csproj src/backend/Application/
 COPY src/backend/Infrastructure/*.csproj src/backend/Infrastructure/
 COPY src/backend/Importers/*.csproj src/backend/Importers/
 COPY src/backend/TaxEngine/*.csproj src/backend/TaxEngine/
+COPY src/backend/Reports/*.csproj src/backend/Reports/
 COPY src/backend/Api/*.csproj src/backend/Api/
 RUN dotnet restore src/backend/Api/KryptoSteuer.Api.csproj
 

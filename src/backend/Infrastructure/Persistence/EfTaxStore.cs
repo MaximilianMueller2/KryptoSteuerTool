@@ -1,11 +1,12 @@
 using KryptoSteuer.Application.Prices;
+using KryptoSteuer.Application.Reports;
 using KryptoSteuer.Application.Tax;
 using KryptoSteuer.Domain.Ledger;
 using Microsoft.EntityFrameworkCore;
 
 namespace KryptoSteuer.Infrastructure.Persistence;
 
-public sealed class EfTaxStore(AppDbContext db) : ITaxDataStore, IPriceStore, IReviewStore
+public sealed class EfTaxStore(AppDbContext db) : ITaxDataStore, IPriceStore, IReviewStore, IReportStore
 {
     public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync(CancellationToken cancellationToken) =>
         await db.Transactions.AsNoTracking().Include(t => t.Legs).ToListAsync(cancellationToken);
@@ -42,6 +43,13 @@ public sealed class EfTaxStore(AppDbContext db) : ITaxDataStore, IPriceStore, IR
         db.ReviewDecisions.Remove(decision);
         await db.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<AuditLogEntry>> GetAuditAsync(CancellationToken cancellationToken) =>
+        await db.AuditLog.AsNoTracking().OrderBy(a => a.TimestampUtc).ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<ImportRunSummary>> GetImportRunsAsync(CancellationToken cancellationToken) =>
+        await db.ImportRuns.AsNoTracking().OrderBy(r => r.CreatedAtUtc)
+            .Select(r => new ImportRunSummary(r.Source, r.FileName, r.FileHash, r.Status, r.CommittedAtUtc)).ToListAsync(cancellationToken);
 
     public async Task AddRunAsync(TaxRun run, CancellationToken cancellationToken)
     {

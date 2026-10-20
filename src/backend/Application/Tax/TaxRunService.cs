@@ -69,10 +69,12 @@ public sealed class TaxRunService(ITaxDataStore store, TimeProvider clock)
         return Build(run, computed, null, computed.InputHash == run.InputHash);
     }
 
-    /// <summary>Rechnet ohne zu speichern (z. B. für die Einzelaufstellung).</summary>
-    public async Task<ComputedRun> ComputeAsync(TaxRunRequest request, CancellationToken cancellationToken)
+    /// <summary>Rechnet ohne zu speichern (z. B. für die Einzelaufstellung); <paramref name="throughYearEnd"/> schneidet spätere Jahre ab.</summary>
+    public async Task<ComputedRun> ComputeAsync(TaxRunRequest request, CancellationToken cancellationToken, bool throughYearEnd = false)
     {
         var transactions = await store.GetTransactionsAsync(cancellationToken);
+        // Für Berichte: nur Buchungen bis zum Jahresende (Berlin); der Bestand entspricht dann dem 31.12., spätere Befunde zählen nicht.
+        if (throughYearEnd) transactions = transactions.Where(t => KryptoSteuer.TaxEngine.Time.BerlinTime.YearOf(t.TimestampUtc) <= request.Year).ToList();
         var assets = await store.GetAssetsAsync(cancellationToken);
         var priceRows = await store.GetPricesAsync(cancellationToken);
 

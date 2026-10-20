@@ -61,8 +61,11 @@ export class KsApi {
     return this.http.get<DisposalReport>(`/api/tax/years/${year}/disposals`, { params: { reform } });
   }
 
-  disposalsCsvUrl(year: number): string {
-    return `/api/tax/years/${year}/disposals.csv`;
+  /** Download-Adresse des Jahresberichts (`pdf`, `xlsx` oder `csv`); der Name erscheint auf dem Deckblatt. */
+  reportUrl(year: number, format: 'pdf' | 'xlsx' | 'csv', name: string, reform: boolean): string {
+    const query = new URLSearchParams({ reform: String(reform) });
+    if (name.trim()) query.set('name', name.trim());
+    return `/api/reports/${year}/${format}?${query.toString()}`;
   }
 
   review(): Observable<ReviewList> {

@@ -55,6 +55,7 @@ app.MapImportEndpoints();
 app.MapBitgetEndpoints();
 app.MapTaxEndpoints();
 app.MapReviewEndpoints();
+app.MapReportEndpoints();
 
 app.Run();
 

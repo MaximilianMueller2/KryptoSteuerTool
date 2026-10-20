@@ -2,6 +2,7 @@ using KryptoSteuer.Application.Accounts;
 using KryptoSteuer.Application.Health;
 using KryptoSteuer.Application.Imports;
 using KryptoSteuer.Application.Prices;
+using KryptoSteuer.Application.Reports;
 using KryptoSteuer.Application.Tax;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,7 @@ public static class DependencyInjection
         services.AddScoped<PriceService>();
         services.AddScoped<TaxRunService>();
         services.AddScoped<ReviewService>();
+        services.AddScoped<ReportService>();
         return services;
     }
 }

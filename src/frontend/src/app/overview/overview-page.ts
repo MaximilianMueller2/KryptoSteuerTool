@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -28,6 +28,10 @@ import { DisposalReport, TaxRunResult } from '../api/models';
       <mat-form-field>
         <mat-label i18n="@@overview.other">Andere private Veräußerungsgeschäfte (€)</mat-label>
         <input matInput type="number" name="other" [ngModel]="otherSales()" (ngModelChange)="otherSales.set($event)" step="0.01" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label i18n="@@overview.name">Name für das Deckblatt (optional)</mat-label>
+        <input matInput name="taxpayer" [ngModel]="taxpayerName()" (ngModelChange)="taxpayerName.set($event)" autocomplete="name" />
       </mat-form-field>
       <mat-checkbox name="reform" [ngModel]="reform()" (ngModelChange)="reform.set($event)" i18n="@@overview.reform">
         Reform-Entwurf 2027 anwenden (nicht beschlossen)
@@ -110,10 +114,17 @@ import { DisposalReport, TaxRunResult } from '../api/models';
         </details>
       }
 
-      <h2 i18n="@@overview.disposals">Einzelaufstellung der Veräußerungen</h2>
-      <p>
-        <a matButton href="{{ csvUrl() }}" download data-testid="csv" i18n="@@overview.csv">Als CSV herunterladen</a>
+      <h2 i18n="@@overview.report">Steuerreport zum Download</h2>
+      <p class="hint" i18n="@@overview.reportHint">
+        Deckblatt, Zusammenfassung zum Eintragen, Einzelaufstellung, laufende Einkünfte, Bestand zum 31.12., Korrekturen und Quellen.
       </p>
+      <p class="downloads">
+        <a matButton="filled" [href]="reportUrl('pdf')" download data-testid="pdf" i18n="@@overview.pdf">PDF</a>
+        <a matButton="outlined" [href]="reportUrl('xlsx')" download data-testid="xlsx" i18n="@@overview.xlsx">Excel</a>
+        <a matButton="outlined" [href]="reportUrl('csv')" download data-testid="csv" i18n="@@overview.csv">CSV (Einzelaufstellung)</a>
+      </p>
+
+      <h2 i18n="@@overview.disposals">Einzelaufstellung der Veräußerungen</h2>
       @if (report(); as rep) {
         @if (rep.rows.length === 0) {
           <p i18n="@@overview.noDisposals">Keine Veräußerungen in diesem Jahr.</p>
@@ -146,6 +157,7 @@ import { DisposalReport, TaxRunResult } from '../api/models';
     }
   `,
   styles: `
+    .downloads { display: flex; gap: 8px; flex-wrap: wrap; }
     .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; margin: 0; }
@@ -172,7 +184,11 @@ export class OverviewPage {
   protected readonly error = signal<string | null>(null);
   protected readonly result = signal<TaxRunResult | null>(null);
   protected readonly report = signal<DisposalReport | null>(null);
-  protected readonly csvUrl = computed(() => this.api.disposalsCsvUrl(this.result()?.year ?? this.year()));
+  protected readonly taxpayerName = signal('');
+
+  protected reportUrl(format: 'pdf' | 'xlsx' | 'csv'): string {
+    return this.api.reportUrl(this.result()?.year ?? this.year(), format, this.taxpayerName(), this.reform());
+  }
 
   protected run(): void {
     this.busy.set(true);
