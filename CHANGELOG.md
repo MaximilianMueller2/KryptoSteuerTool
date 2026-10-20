@@ -7,6 +7,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Hinzugefügt
 
+- Berechnungslauf: `POST /api/tax/runs` (Steuerjahr, Einstellungen, Angaben des Nutzers) speichert Parameter, SHA-256 der Eingabedaten und
+  Ergebnis-Snapshot; zeigt Unterschiede zum letzten Lauf. `GET /api/tax/runs/{id}`; Läufe mit offenen Befunden gelten als Entwurf.
+- Einzelaufstellung der Veräußerungen: `GET /api/tax/years/{jahr}/disposals` (JSON) und `.../disposals.csv` (deutsches Zahlenformat, BOM).
+- Kurse: `POST /api/prices/ecb` (Upload `eurofxref-hist.csv`/`.zip`), `POST /api/prices/ecb/fetch` (Abruf, Adresse über `Prices:EcbUrl`),
+  `PUT /api/prices` (Handkurs mit Quelle), `GET /api/prices`. USD-Stablecoins werden über den EZB-Kurs umgerechnet.
 - Projektgerüst (P1): Backend-Lösung `KryptoSteuer.sln` mit den Projekten Domain, Application,
   Infrastructure, Importers, TaxEngine und Api (.NET 10).
 - Endpunkt `GET /api/health` mit Datenbankprüfung (200/503) und OpenAPI-Spezifikation unter `/openapi/v1.json`.

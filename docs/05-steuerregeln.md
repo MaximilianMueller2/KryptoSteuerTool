@@ -98,6 +98,13 @@ Die Engine meldet, was sie nicht sicher rechnen kann: fehlender Kurs, negativer 
 17 Durchschnittsmethode, 18 Transfer ohne Gegenstück und fehlender Kurs. Die Golden Tests laufen in der CI. Eine Änderung des erwarteten Ergebnisses braucht einen ADR ([ADR 0003](adr/0003-golden-tests.md)).
 Die Zeilenabdeckung der TaxEngine liegt bei 99 % (CI-Mindestwert 95 %).
 
+## Berechnungslauf und Kurse
+
+- Kursquellen derzeit: EZB-Referenzkurs EUR/USD für USD-Stablecoins (Annahme: 1 Stablecoin = 1 USD, Quelle wird je Kurs gespeichert) und
+  Handkurse. Fehlt ein Kurs, entsteht ein Befund, nie 0 EUR. Weitere Quellen (P21) folgen.
+- Ein Lauf speichert Parameter, Regelsatz-Version, Eingabe-Hash und Ergebnis-Snapshot. Gleiche Eingabe ergibt gleichen Hash; Änderungen
+  werden gegenüber dem letzten Lauf desselben Jahres aufgelistet.
+
 ## Annahmen und offene Punkte
 
 - Rechtsstand und BMF-Rn. sind aus dem Katalog übernommen, nicht online geprüft.

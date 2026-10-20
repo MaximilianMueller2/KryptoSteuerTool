@@ -2,6 +2,8 @@ using KryptoSteuer.Application.Accounts;
 using KryptoSteuer.Application.Bitget;
 using KryptoSteuer.Application.Health;
 using KryptoSteuer.Application.Imports;
+using KryptoSteuer.Application.Prices;
+using KryptoSteuer.Application.Tax;
 using KryptoSteuer.Application.Secrets;
 using KryptoSteuer.Infrastructure.Secrets;
 using KryptoSteuer.Infrastructure.Persistence;
@@ -51,6 +53,9 @@ public static class DependencyInjection
         services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
 
         services.AddScoped<IBitgetSyncStore, EfBitgetSyncStore>();
+        services.AddScoped<EfTaxStore>();
+        services.AddScoped<ITaxDataStore>(sp => sp.GetRequiredService<EfTaxStore>());
+        services.AddScoped<IPriceStore>(sp => sp.GetRequiredService<EfTaxStore>());
         return services;
     }
 }

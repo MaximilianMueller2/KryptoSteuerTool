@@ -53,6 +53,7 @@ app.MapGet("/api/health", async (GetHealthUseCase getHealth, CancellationToken c
 app.MapAccountEndpoints();
 app.MapImportEndpoints();
 app.MapBitgetEndpoints();
+app.MapTaxEndpoints();
 
 app.Run();
 

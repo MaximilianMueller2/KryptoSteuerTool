@@ -5,6 +5,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\KryptoSteuer.Domain.csproj" />
+    <ProjectReference Include="..\TaxEngine\KryptoSteuer.TaxEngine.csproj" />
   </ItemGroup>
 
   <ItemGroup>

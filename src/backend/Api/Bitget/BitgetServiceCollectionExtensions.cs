@@ -1,3 +1,4 @@
+using KryptoSteuer.Api.Prices;
 using KryptoSteuer.Importers.Bitget;
 
 namespace KryptoSteuer.Api.Bitget;
@@ -14,6 +15,10 @@ public static class BitgetServiceCollectionExtensions
         });
         services.AddSingleton<IBitgetClientFactory, BitgetClientFactory>();
         services.AddScoped<BitgetSyncService>();
+
+        // EZB-Referenzkurse für die Umrechnung von USD-Stablecoins
+        services.AddHttpClient(EcbRatesClient.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(60));
+        services.AddScoped(sp => new EcbRatesClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient(EcbRatesClient.HttpClientName), configuration));
 
         if (configuration.GetValue("Bitget:DailySync:Enabled", true))
             services.AddHostedService(sp => ActivatorUtilities.CreateInstance<BitgetDailySyncService>(sp));
