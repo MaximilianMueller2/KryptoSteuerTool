@@ -1,0 +1,108 @@
+{
+  "name": "13b-stichtag-2027-reform-an",
+  "title": "Kauf 31.12.2026 vs. 01.01.2027, Reform AN",
+  "year": 2027,
+  "settings": {
+    "applyReform2027": true
+  },
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2026-12-31T22:30:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "40000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2026-12-31T23:30:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "50000"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2027-03-01T12:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "2"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "120000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "20000",
+      "net": "20000",
+      "taxable": "20000"
+    },
+    "reform": {
+      "net": "10000",
+      "pauschbetrag": "1000",
+      "taxable": "9000",
+      "flatTax": "2250",
+      "solidarity": "123.75",
+      "total": "2373.75"
+    },
+    "disposals": [
+      {
+        "tx": "t3",
+        "lotTx": "t1",
+        "qty": "1",
+        "gain": "20000",
+        "regime": "Alt",
+        "treatment": "Section23Taxable"
+      },
+      {
+        "tx": "t3",
+        "lotTx": "t2",
+        "qty": "1",
+        "gain": "10000",
+        "regime": "Neu",
+        "treatment": "ReformCapital"
+      }
+    ],
+    "findings": []
+  }
+}

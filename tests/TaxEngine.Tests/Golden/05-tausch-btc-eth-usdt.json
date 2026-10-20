@@ -1,0 +1,126 @@
+{
+  "name": "05-tausch-btc-eth-usdt",
+  "title": "Tausch BTC → ETH → USDT",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    },
+    {
+      "key": "ETH",
+      "class": "Crypto"
+    },
+    {
+      "key": "USDT",
+      "class": "Stablecoin"
+    }
+  ],
+  "prices": [
+    {
+      "asset": "ETH",
+      "at": "2025-03-10T00:00:00Z",
+      "eur": "2500"
+    },
+    {
+      "asset": "USDT",
+      "at": "2025-05-10T00:00:00Z",
+      "eur": "0.9"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-10T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-03-10T10:00:00Z",
+      "account": "A",
+      "type": "Trade",
+      "legs": [
+        {
+          "asset": "ETH",
+          "dir": "In",
+          "amount": "10"
+        },
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2025-05-10T10:00:00Z",
+      "account": "A",
+      "type": "Trade",
+      "legs": [
+        {
+          "asset": "USDT",
+          "dir": "In",
+          "amount": "26000"
+        },
+        {
+          "asset": "ETH",
+          "dir": "Out",
+          "amount": "10"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "5000",
+      "losses": "1600",
+      "net": "3400",
+      "taxable": "3400"
+    },
+    "disposals": [
+      {
+        "tx": "t2",
+        "qty": "1",
+        "proceeds": "25000",
+        "cost": "20000",
+        "gain": "5000",
+        "holdingDays": 59
+      },
+      {
+        "tx": "t3",
+        "qty": "10",
+        "proceeds": "23400",
+        "cost": "25000",
+        "gain": "-1600",
+        "holdingDays": 61
+      }
+    ],
+    "lots": [
+      {
+        "account": "A",
+        "asset": "USDT",
+        "remaining": "26000",
+        "remainingCost": "23400"
+      }
+    ],
+    "findings": []
+  }
+}

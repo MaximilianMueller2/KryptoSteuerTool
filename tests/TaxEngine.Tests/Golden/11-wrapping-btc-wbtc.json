@@ -1,0 +1,90 @@
+{
+  "name": "11-wrapping-btc-wbtc",
+  "title": "Wrapping BTC → WBTC",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    },
+    {
+      "key": "WBTC",
+      "class": "Crypto"
+    }
+  ],
+  "prices": [
+    {
+      "asset": "WBTC",
+      "at": "2025-04-01T00:00:00Z",
+      "eur": "30000"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-10T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-04-01T10:00:00Z",
+      "account": "A",
+      "type": "Trade",
+      "legs": [
+        {
+          "asset": "WBTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "10000",
+      "net": "10000",
+      "taxable": "10000"
+    },
+    "disposals": [
+      {
+        "tx": "t2",
+        "qty": "1",
+        "proceeds": "30000",
+        "cost": "20000",
+        "gain": "10000"
+      }
+    ],
+    "lots": [
+      {
+        "account": "A",
+        "asset": "WBTC",
+        "remaining": "1",
+        "remainingCost": "30000",
+        "acquiredAt": "2025-04-01T10:00:00Z"
+      }
+    ],
+    "findings": []
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "name": "07-staking-zufluss-und-verkauf-nach-6-monaten",
+  "title": "Staking-Zufluss und Verkauf nach 6 Monaten",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "SOL",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "prices": [
+    {
+      "asset": "SOL",
+      "at": "2025-01-15T00:00:00Z",
+      "eur": "100"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-15T12:00:00Z",
+      "account": "A",
+      "type": "Staking",
+      "legs": [
+        {
+          "asset": "SOL",
+          "dir": "In",
+          "amount": "10"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-07-20T12:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "SOL",
+          "dir": "Out",
+          "amount": "10"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "1500"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section22": {
+      "income": "1000",
+      "net": "1000",
+      "belowFreigrenze": false,
+      "taxable": "1000"
+    },
+    "section23": {
+      "gains": "500",
+      "net": "500",
+      "belowFreigrenze": true,
+      "taxable": "0",
+      "lossCarryOut": "0"
+    },
+    "disposals": [
+      {
+        "tx": "t2",
+        "qty": "10",
+        "proceeds": "1500",
+        "cost": "1000",
+        "gain": "500",
+        "holdingDays": 186,
+        "within": true
+      }
+    ],
+    "findings": []
+  }
+}

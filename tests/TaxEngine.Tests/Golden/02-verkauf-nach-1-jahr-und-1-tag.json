@@ -1,0 +1,75 @@
+{
+  "name": "02-verkauf-nach-1-jahr-und-1-tag",
+  "title": "Verkauf nach einem Jahr und einem Tag",
+  "year": 2026,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-10T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2026-01-11T10:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "30000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "0",
+      "losses": "0",
+      "net": "0",
+      "taxable": "0",
+      "taxFreeAfterPeriodNet": "10000"
+    },
+    "disposals": [
+      {
+        "tx": "t2",
+        "qty": "1",
+        "proceeds": "30000",
+        "cost": "20000",
+        "gain": "10000",
+        "holdingDays": 366,
+        "within": false,
+        "taxFreeFrom": "2026-01-11"
+      }
+    ],
+    "findings": []
+  }
+}

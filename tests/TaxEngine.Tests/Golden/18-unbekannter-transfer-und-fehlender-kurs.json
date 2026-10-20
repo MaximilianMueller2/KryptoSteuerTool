@@ -1,0 +1,84 @@
+{
+  "name": "18-unbekannter-transfer-und-fehlender-kurs",
+  "title": "Transfer ohne Gegenstück und Tausch ohne Kurs",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    },
+    {
+      "key": "XYZ",
+      "class": "Crypto"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-02-01T10:00:00Z",
+      "account": "TR",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-03-01T10:00:00Z",
+      "account": "TR",
+      "type": "Withdrawal",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.5"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2025-04-01T10:00:00Z",
+      "account": "TR",
+      "type": "Trade",
+      "legs": [
+        {
+          "asset": "XYZ",
+          "dir": "In",
+          "amount": "100"
+        },
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.2"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "0",
+      "taxable": "0"
+    },
+    "disposals": [],
+    "holdings": {
+      "TR/BTC": "1"
+    },
+    "findings": [
+      "UnmatchedTransferOut",
+      "MissingPrice"
+    ]
+  }
+}

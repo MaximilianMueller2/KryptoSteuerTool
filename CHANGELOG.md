@@ -47,6 +47,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   Zinsen, Dividenden, Fondserträge, Steuern als eigene Buchungen, Saveback/Stockperk, Geschenke, Gebühren, Ein-/Auszahlungen; Kartenzahlungen als
   `Ignored`, Kapitalmaßnahmen und Tilgungen in der Prüfliste. Neuer Buchungstyp `Tax`, Asset-Klassen und ISIN für Wertpapiere.
 - Gemeinsamer `ImportTxBuilder` für alle Importer; mehrere Buchungen je Zeile über Suffixe der externen ID.
+- Steuer-Engine (P12 bis P19): versionierte Regelsätze (`DE-23EStG`, `DE-Reform-2027-Entwurf`) mit Gültigkeit, Rechtsgrundlage und Quelle;
+  Lot-Engine mit FIFO je Konto und Durchschnittsmethode; Haltefrist nach §§ 187, 188 BGB in Berliner Zeit; Regime Alt/Neu je Lot; Tausch,
+  Stablecoins, Wrapping, Gebühren (auch in drittem Coin); Transfer-Zuordnung mit Konfidenz und Netzwerkgebühr (neutral oder Veräußerung);
+  laufende Einkünfte nach § 22 Nr. 3; Jahresaggregation mit Freigrenze und Verlustvortrag; Futures-Modul in EUR; Reform-Regelsatz als Schalter.
+  Befunde statt stiller Annahmen (fehlender Kurs, negativer Bestand, Transfers ohne Gegenstück).
+- 22 Golden-Test-Szenarien mit Hand-Rechnung, Property-Tests (FsCheck) und Randfall-Tests; Abdeckung der TaxEngine 99 %; `docs/05-steuerregeln.md`, ADR 0003.
 
 ### Behoben
 

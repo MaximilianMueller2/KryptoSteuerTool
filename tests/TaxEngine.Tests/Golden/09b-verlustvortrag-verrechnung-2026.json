@@ -1,0 +1,67 @@
+{
+  "name": "09b-verlustvortrag-verrechnung-2026",
+  "title": "Verlustvortrag wird 2026 verrechnet",
+  "year": 2026,
+  "yearInputs": {
+    "lossCarryForwardIn": "10500"
+  },
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2026-01-10T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2026-06-10T10:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "32000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "12000",
+      "net": "12000",
+      "taxable": "1500",
+      "lossCarryOut": "0",
+      "lossUsed": "10500",
+      "belowFreigrenze": false
+    },
+    "findings": []
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "name": "10-gebuehr-in-drittem-coin",
+  "title": "Gebühr in drittem Coin (BGB)",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    },
+    {
+      "key": "USDT",
+      "class": "Stablecoin"
+    },
+    {
+      "key": "BGB",
+      "class": "Crypto"
+    }
+  ],
+  "prices": [
+    {
+      "asset": "BTC",
+      "at": "2025-02-01T00:00:00Z",
+      "eur": "55000"
+    },
+    {
+      "asset": "BGB",
+      "at": "2025-02-01T00:00:00Z",
+      "eur": "1.5"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-01T10:00:00Z",
+      "account": "Bitget",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "USDT",
+          "dir": "In",
+          "amount": "1000"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "900"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-01-01T10:01:00Z",
+      "account": "Bitget",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BGB",
+          "dir": "In",
+          "amount": "100"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "150"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2025-02-01T10:00:00Z",
+      "account": "Bitget",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "0.01"
+        },
+        {
+          "asset": "USDT",
+          "dir": "Out",
+          "amount": "600"
+        },
+        {
+          "asset": "BGB",
+          "dir": "Out",
+          "amount": "2",
+          "fee": true
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "7",
+      "losses": "0",
+      "net": "7",
+      "taxable": "0",
+      "belowFreigrenze": true
+    },
+    "disposals": [
+      {
+        "tx": "t3",
+        "qty": "2",
+        "proceeds": "3",
+        "cost": "3",
+        "gain": "0"
+      },
+      {
+        "tx": "t3",
+        "qty": "600",
+        "proceeds": "550",
+        "cost": "540",
+        "fee": "3",
+        "gain": "7"
+      }
+    ],
+    "lots": [
+      {
+        "account": "Bitget",
+        "asset": "USDT",
+        "remaining": "400",
+        "remainingCost": "360"
+      },
+      {
+        "account": "Bitget",
+        "asset": "BGB",
+        "remaining": "98",
+        "remainingCost": "147"
+      },
+      {
+        "account": "Bitget",
+        "asset": "BTC",
+        "remaining": "0.01",
+        "remainingCost": "553"
+      }
+    ],
+    "findings": []
+  }
+}

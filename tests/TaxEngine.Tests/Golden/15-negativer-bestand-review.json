@@ -1,0 +1,67 @@
+{
+  "name": "15-negativer-bestand-review",
+  "title": "Negativer Bestand → Review statt Ergebnis",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-05-01T10:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "30000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-06-01T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "25000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "0",
+      "losses": "0",
+      "net": "0",
+      "taxable": "0"
+    },
+    "disposals": [],
+    "findings": [
+      "NegativeHolding",
+      "AssetBlocked"
+    ],
+    "holdings": {}
+  }
+}
