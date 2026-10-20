@@ -78,7 +78,7 @@ Regime (Alt/Neu), damit ein späteres Einschalten nur eine Neuberechnung ist. Ei
 - Eigenes Modul, **nie mit Spot-Lots vermischt**, keine Haltefrist. Realisierter Gewinn/Verlust, Funding, Gebühren und Liquidationen werden je Buchung mit dem EUR-Kurs des Buchungstags (USDT→EUR) umgerechnet und je Steuerjahr summiert. Test: Golden 16.
 - Fehlt der Kurs, entsteht **eine** Sammelmeldung je Coin mit Anzahl und Zeitraum; diese Buchungen fehlen dann in der Summe (nie 0 EUR).
 - Zuordnung: Einkünfte aus Kapitalvermögen (Termingeschäfte), Ausweis in **Anlage KAP**, getrennt von § 23. Bei ausländischen Anbietern ohne Steuerabzug ist der Eintrag in der Anlage KAP nötig.
-  **Verlustverrechnungsregeln für Termingeschäfte vor Abgabe mit einer Beraterin prüfen**; die App wendet keine Verlustverrechnungsbeschränkung an.
+  Die frühere Verlustverrechnungsgrenze von 20.000 € für Termingeschäfte ist durch das Jahressteuergesetz 2024 rückwirkend ab 2024 entfallen; die App wendet keine Beschränkung an (Jahre bis 2023: vor Abgabe prüfen). Die Einordnung von Krypto-Futures als Termingeschäfte vor Abgabe mit einer Beraterin klären.
 - Hinweis zur Methode: Die Summe der Futures-Buchungen ist die Veränderung des Futures-Kontos; interne Umbuchungen (Transfers Spot ↔ Futures, Margin-Umverteilung) sind nicht steuerrelevant und werden ignoriert.
 
 ## Reform-Entwurf 2027 (nicht beschlossen)

@@ -7,6 +7,15 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Hinzugefügt
 
+- Handkurse in der Oberfläche (Seite Kurse), Backup- und Restore-Skripte (`scripts/backup.sh`, `scripts/restore.sh`) und die Anleitung `docs/01-anleitung.md`
+  (Ablauf, Quellen der Exporte, Hinweise zur Steuererklärung, Fehlersuche).
+
+### Behoben
+
+- nginx lässt jetzt CSV-Uploads bis 50 MB zu (Standard waren 1 MB) und längere Antwortzeiten für Sync und Berichte.
+- Hinweis zur Anlage KAP im Bericht: Die Verlustverrechnungsgrenze von 20.000 € für Termingeschäfte ist durch das Jahressteuergesetz 2024 ab 2024 entfallen.
+
+### Hinzugefügt
 - Seite „Konten“: Bitget-API-Key hinterlegen (Secret und Passphrase als Passwortfelder, nach dem Speichern aus dem Formular entfernt, Rechte-Warnungen), „Jetzt synchronisieren“ mit Ergebnis,
   nicht abrufbaren Abschnitten und Saldo-Abweichungen sowie Bestandstabelle je Konto und Asset. Neuer Endpunkt `GET /api/tax/holdings` (offene Lots, Kosten in EUR).
 - Steuerreport (P25): `GET /api/reports/{jahr}/pdf|xlsx|csv` mit Deckblatt (Entwurf/final, Hash), Zusammenfassung zum Eintragen (Anlage SO, KAP), Einzelaufstellung,

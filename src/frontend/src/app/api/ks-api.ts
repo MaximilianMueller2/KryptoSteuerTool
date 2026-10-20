@@ -10,6 +10,7 @@ import {
   DisposalReport,
   EcbImportResult,
   Holding,
+  ManualPrice,
   ImportRun,
   ReviewList,
   TaxRunRequest,
@@ -111,6 +112,10 @@ export class KsApi {
     const form = new FormData();
     form.append('file', file, file.name);
     return this.http.post<EcbImportResult>('/api/prices/ecb', form);
+  }
+
+  setManualPrice(request: { symbol: string; at: string; eurPrice: number; source: string | null }): Observable<ManualPrice> {
+    return this.http.put<ManualPrice>('/api/prices', request);
   }
 
   fetchEcb(): Observable<EcbImportResult> {

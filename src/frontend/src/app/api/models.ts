@@ -211,3 +211,10 @@ export interface BitgetSyncResult {
   balanceMismatches: BalanceMismatch[];
   balanceCheckSkipped: string | null;
 }
+
+export interface ManualPrice {
+  assetId: string;
+  at: string;
+  eurPrice: number;
+  source: string;
+}

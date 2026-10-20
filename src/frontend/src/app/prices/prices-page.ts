@@ -1,4 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { KsApi, errorMessage } from '../api/ks-api';
@@ -6,7 +9,7 @@ import { EcbImportResult } from '../api/models';
 
 @Component({
   selector: 'ks-prices-page',
-  imports: [MatButtonModule, MatCardModule],
+  imports: [FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule],
   template: `
     <h1 i18n="@@prices.title">Kurse</h1>
     <mat-card>
@@ -22,6 +25,37 @@ import { EcbImportResult } from '../api/models';
       </mat-card-content>
     </mat-card>
 
+    <mat-card class="manual">
+      <mat-card-header><mat-card-title i18n="@@prices.manual">Kurs von Hand eintragen</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <p class="hint" i18n="@@prices.manualHint">
+          Für Assets ohne Kurs in der Berechnung (Befund „Kurs fehlt“). Das Asset muss schon importiert sein. Trage die Quelle ein, damit der Kurs im Bericht nachvollziehbar bleibt.
+        </p>
+        <form class="manual-form" (ngSubmit)="saveManual()">
+          <mat-form-field>
+            <mat-label i18n="@@prices.symbol">Symbol (z. B. SOL)</mat-label>
+            <input matInput name="symbol" [ngModel]="symbol()" (ngModelChange)="symbol.set($event)" data-testid="symbol" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label i18n="@@prices.at">Zeitpunkt (UTC)</mat-label>
+            <input matInput type="datetime-local" name="at" [ngModel]="at()" (ngModelChange)="at.set($event)" data-testid="at" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label i18n="@@prices.eur">Kurs in EUR</mat-label>
+            <input matInput type="number" min="0" step="any" name="eur" [ngModel]="eurPrice()" (ngModelChange)="eurPrice.set($event)" data-testid="eur" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label i18n="@@prices.source">Quelle (z. B. CoinGecko)</mat-label>
+            <input matInput name="source" [ngModel]="source()" (ngModelChange)="source.set($event)" data-testid="source" />
+          </mat-form-field>
+          <button matButton="filled" type="submit" [disabled]="busy() || !manualValid()" data-testid="save-manual" i18n="@@prices.save">Kurs speichern</button>
+        </form>
+        @if (manualSaved()) {
+          <p class="ok" data-testid="manual-saved" i18n="@@prices.saved">Kurs gespeichert. Danach das Steuerjahr neu berechnen.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
     @if (error(); as e) {
       <p class="error" role="alert" data-testid="error">{{ e }}</p>
     }
@@ -34,6 +68,8 @@ import { EcbImportResult } from '../api/models';
     }
   `,
   styles: `
+    .manual { margin-top: 16px; }
+    .manual-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
     .hint { color: var(--mat-sys-on-surface-variant); }
     .error { color: var(--mat-sys-error); }
     .ok { color: var(--mat-sys-primary); }
@@ -46,6 +82,39 @@ export class PricesPage {
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly result = signal<EcbImportResult | null>(null);
+
+  protected readonly symbol = signal('');
+  protected readonly at = signal('');
+  protected readonly eurPrice = signal<number | null>(null);
+  protected readonly source = signal('');
+  protected readonly manualSaved = signal(false);
+
+  protected manualValid(): boolean {
+    return !!this.symbol().trim() && !!this.at() && (this.eurPrice() ?? 0) > 0;
+  }
+
+  protected saveManual(): void {
+    this.busy.set(true);
+    this.error.set(null);
+    this.manualSaved.set(false);
+    this.api
+      .setManualPrice({
+        symbol: this.symbol().trim(),
+        at: new Date(this.at() + 'Z').toISOString(),
+        eurPrice: this.eurPrice() as number,
+        source: this.source().trim() || null,
+      })
+      .subscribe({
+        next: () => {
+          this.manualSaved.set(true);
+          this.busy.set(false);
+        },
+        error: (e: unknown) => {
+          this.error.set(errorMessage(e));
+          this.busy.set(false);
+        },
+      });
+  }
 
   protected fetch(): void {
     this.handle(this.api.fetchEcb());

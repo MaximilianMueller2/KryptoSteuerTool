@@ -31,9 +31,9 @@ internal static class ReportFormat
         "bei Erreichen oder Überschreiten ist der gesamte Betrag steuerpflichtig.";
 
     public const string KapHinweis =
-        "Futures/Termingeschäfte (z. B. bei Bitget) gehören nicht zu § 23, sondern zu den Einkünften aus Kapitalvermögen (Anlage KAP, Zeilen für Termingeschäfte/" +
-        "ausländische Kapitalerträge ohne inländischen Steuerabzug). Verluste aus Termingeschäften sind nur mit Gewinnen aus Termingeschäften verrechenbar " +
-        "(Verlustverrechnungsbeschränkung); Funding-Gebühren und Handelsgebühren sind in der Summe berücksichtigt. Bitte mit dem Steuerberater abstimmen.";
+        "Futures/Termingeschäfte (z. B. bei Bitget) gehören nicht zu § 23, sondern gelten als Einkünfte aus Kapitalvermögen (Anlage KAP, ausländischer Anbieter ohne inländischen Steuerabzug). " +
+        "Die frühere Verlustverrechnungsgrenze von 20.000 EUR für Termingeschäfte ist durch das Jahressteuergesetz 2024 rückwirkend ab 2024 entfallen; für Jahre bis 2023 galt sie noch. " +
+        "Funding- und Handelsgebühren sind in der Summe berücksichtigt. Die steuerliche Einordnung von Krypto-Futures bitte mit dem Steuerberater oder Finanzamt klären.";
 
     public const string WertpapiereHinweis =
         "Wertpapiere (z. B. Trade Republic): Die Jahressteuerbescheinigung des Brokers ist maßgeblich. Eine Anlage KAP ist nur nötig, wenn Erträge dort nicht oder " +
