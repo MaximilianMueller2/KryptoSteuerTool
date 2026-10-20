@@ -45,4 +45,5 @@ ETFs folgen später. Die App ersetzt keine Steuerberatung.
 ## Stand der Umsetzung
 
 - P1 (Projektgerüst) ist umgesetzt; siehe `docs/02-architektur.md`.
-- Hinweis: P1 wurde in einer Umgebung ohne Zugriff auf NuGet/npm geschrieben und noch nicht gebaut. Vor dem Merge einmal `dotnet test`, `npm install && npm test` und `docker compose up --build` lokal ausführen und Fehler beheben.
+- P2 (Datenmodell) ist als Code und Doku umgesetzt; siehe `docs/03-datenmodell.md`. Die EF-Migration `Initial` fehlt noch (braucht .NET-SDK, siehe dort).
+- Hinweis: P1 und P2 wurden in einer Umgebung ohne Zugriff auf NuGet/npm geschrieben und noch nicht gebaut oder getestet. Vor dem Merge einmal `dotnet test`, `npm install && npm test` und `docker compose up --build` lokal ausführen und Fehler beheben.

@@ -16,3 +16,6 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 - `docker-compose.yml` mit `postgres`, `api`, `frontend` (nginx) und optionalem `pgadmin`, jeweils mit Healthchecks.
 - Dokumentation: README, `docs/02-architektur.md`, ADR 0001 „Modularer Monolith statt Microservices“.
 - `CLAUDE.md` mit Projektregeln und Steuerregeln (Vorgriff auf P0).
+- Datenmodell (P2): Ledger-Entitäten (Account, Asset, RawRecord, Transaction/TransactionLeg, TransferLink, Price,
+  Lot, Disposal, TaxRun, AuditLogEntry) mit EF-Core-Konfiguration, Beinen-Invarianten und Idempotenz-Schlüssel.
+- Unit-Tests für Beinen-Invarianten und Idempotenz; `docs/03-datenmodell.md` mit ER-Diagramm; ADR 0002.
