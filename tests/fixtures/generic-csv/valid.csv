@@ -1,0 +1,7 @@
+id,timestamp,type,asset,amount,counter_asset,counter_amount,fee_asset,fee
+t-1,2026-01-10T09:30:00Z,deposit,EUR,5000,,,,
+t-2,2026-01-11T10:00:00+01:00,buy,BTC,0.05,EUR,2500,EUR,2.5
+t-3,2026-02-01T00:00:00Z,trade,ETH,1.5,BTC,0.02,BTC,0.0001
+t-4,2026-02-15T12:00:00Z,staking,ETH,0.001,,,,
+t-5,2026-03-01T08:00:00Z,transfer_out,BTC,0.03,,,BTC,0.0002
+t-6,2026-03-02T08:05:00Z,futures_pnl,USDT,-12.5,,,,

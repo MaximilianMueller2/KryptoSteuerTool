@@ -74,6 +74,12 @@ public sealed class Transaction
                     errors.Add($"{Type} braucht genau ein Out-Bein und kein In-Bein.");
                 break;
 
+            case TransactionType.Unknown:
+                // Unbekannte Typen werden unverändert zur Prüfung gespeichert; Beine sind frei.
+                if (Status != TransactionStatus.NeedsReview)
+                    errors.Add("Unbekannte Typen müssen den Status NeedsReview haben.");
+                break;
+
             case TransactionType.FuturesPnL:
             case TransactionType.FundingFee:
             case TransactionType.Liquidation:

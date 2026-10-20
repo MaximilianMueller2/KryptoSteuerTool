@@ -1,6 +1,8 @@
 using KryptoSteuer.Api;
+using KryptoSteuer.Api.Endpoints;
 using KryptoSteuer.Application;
 using KryptoSteuer.Application.Health;
+using KryptoSteuer.Importers;
 using KryptoSteuer.Infrastructure;
 using KryptoSteuer.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +13,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
+builder.Services.AddImporters();
+builder.Services.ConfigureHttpJsonOptions(o =>
+    o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 var app = builder.Build();
 
@@ -42,6 +47,9 @@ app.MapGet("/api/health", async (GetHealthUseCase getHealth, CancellationToken c
     .WithSummary("Zustand der API und der Datenbankverbindung")
     .Produces<HealthResponse>(StatusCodes.Status200OK)
     .Produces<HealthResponse>(StatusCodes.Status503ServiceUnavailable);
+
+app.MapAccountEndpoints();
+app.MapImportEndpoints();
 
 app.Run();
 

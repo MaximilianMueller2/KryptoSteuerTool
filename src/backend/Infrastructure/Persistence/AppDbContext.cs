@@ -12,6 +12,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Asset> Assets => Set<Asset>();
     public DbSet<RawRecord> RawRecords => Set<RawRecord>();
+    public DbSet<ImportRun> ImportRuns => Set<ImportRun>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<TransactionLeg> TransactionLegs => Set<TransactionLeg>();
     public DbSet<TransferLink> TransferLinks => Set<TransferLink>();

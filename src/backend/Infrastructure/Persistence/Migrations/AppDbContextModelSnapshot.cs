@@ -196,6 +196,58 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                     b.ToTable("Disposals");
                 });
 
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ImportRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CommittedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FileHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
+
+                    b.Property<string>("ReportJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("FileHash");
+
+                    b.ToTable("ImportRuns");
+                });
+
             modelBuilder.Entity("KryptoSteuer.Domain.Ledger.Lot", b =>
                 {
                     b.Property<Guid>("Id")
@@ -277,6 +329,11 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<string>("ExternalId")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -292,6 +349,9 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("ImportedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("LineNumber")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Payload")
                         .IsRequired()
                         .HasColumnType("text");
@@ -304,6 +364,10 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ImportRunId");
+
+                    b.HasIndex("Source", "ContentHash")
+                        .IsUnique()
+                        .HasFilter("\"ExternalId\" IS NULL");
 
                     b.HasIndex("Source", "ExternalId")
                         .IsUnique()
@@ -481,6 +545,15 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                     b.HasOne("KryptoSteuer.Domain.Ledger.Transaction", null)
                         .WithMany()
                         .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("KryptoSteuer.Domain.Ledger.ImportRun", b =>
+                {
+                    b.HasOne("KryptoSteuer.Domain.Ledger.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

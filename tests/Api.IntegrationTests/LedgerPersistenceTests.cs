@@ -25,6 +25,7 @@ public sealed class LedgerPersistenceTests : IAsyncLifetime
     private static RawRecord Raw(string? externalId = "1", string payload = "{}") => new()
     {
         Source = "bitget", ExternalId = externalId, Payload = payload, FileHash = new string('a', 64),
+        ContentHash = KryptoSteuer.Domain.Ledger.IdempotencyKey.Sha256Hex(payload),
         ImportRunId = Guid.NewGuid(), ImportedAtUtc = DateTimeOffset.UtcNow,
     };
 

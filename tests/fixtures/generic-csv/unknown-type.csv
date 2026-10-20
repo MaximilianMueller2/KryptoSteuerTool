@@ -1,0 +1,5 @@
+id,timestamp,type,asset,amount,counter_asset,counter_amount,fee_asset,fee
+u-1,2026-01-10T09:30:00Z,deposit,EUR,100,,,,
+u-2,2026-01-11T09:30:00Z,margin_rebate,USDT,3.2,,,,
+u-3,2026-01-12T09:30:00Z,Margin_Rebate,USDT,1.1,,,,
+u-4,2026-01-13T09:30:00Z,dust_conversion,BNB,0.01,,,,

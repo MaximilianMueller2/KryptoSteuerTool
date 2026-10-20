@@ -26,6 +26,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   `dpkeys` außerhalb der Datenbank. User Secrets für lokale Entwicklung.
 - ESLint (angular-eslint) im Frontend, `package-lock.json` eingecheckt, `docs/07-betrieb.md`.
 - EF-Core-Migration `Initial`, automatische Migration beim Start (`Database:MigrateOnStartup`), Persistenz-Integrationstests.
+- Import-Framework (P4): `IImporter`, Importablauf (Rohdatei mit SHA-256, Parsen, Normalisieren, Duplikaterkennung,
+  Vorschau, Bestätigung), Importbericht mit Zeilennummern, `NeedsReview` für unbekannte Typen.
+- API: `POST /api/imports`, `GET /api/imports/{id}`, `POST /api/imports/{id}/commit`, `DELETE /api/imports/{id}`,
+  dazu `GET/POST /api/accounts`.
+- Importer `generic-csv` als Referenz, Beispieldateien unter `tests/fixtures/`, `docs/04-importe.md`.
+- Migration `ImportRuns` (Tabelle `ImportRuns`, `RawRecord.ContentHash`/`LineNumber`); neuer Transaktionstyp `Unknown`.
 
 ### Behoben
 

@@ -9,8 +9,8 @@ nachvollziehbarer Jahresreport. Fokus Krypto; Aktien und ETFs folgen später.
 
 ## Stand
 
-P1 (Projektgerüst) ist umgesetzt. Es gibt noch keine Fachlogik, nur das lauffähige Grundgerüst
-mit `/api/health` und einer Startseite, die den Status anzeigt. Der Fahrplan steht im Prompt-Katalog.
+P1 bis P4 sind umgesetzt: Projektgerüst, Datenmodell, CI und Import-Framework (siehe `docs/04-importe.md`).
+Es gibt noch keine Steuerlogik und noch keine Importer für Bitget und Trade Republic. Der Fahrplan steht im Prompt-Katalog.
 
 ## Voraussetzungen
 

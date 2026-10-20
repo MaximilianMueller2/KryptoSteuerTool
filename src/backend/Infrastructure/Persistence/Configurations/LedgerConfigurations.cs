@@ -41,10 +41,28 @@ internal sealed class RawRecordConfiguration : IEntityTypeConfiguration<RawRecor
         b.Property(x => x.ExternalId).HasMaxLength(200);
         b.Property(x => x.Payload).IsRequired();
         b.Property(x => x.FileHash).HasMaxLength(64).IsRequired();
+        b.Property(x => x.ContentHash).HasMaxLength(64).IsRequired();
         b.Ignore(x => x.DedupKey);
         b.HasIndex(x => x.ImportRunId);
         // Idempotenz: (Quelle, externe ID) eindeutig, solange es eine externe ID gibt.
         b.HasIndex(x => new { x.Source, x.ExternalId }).IsUnique().HasFilter("\"ExternalId\" IS NOT NULL");
+        b.HasIndex(x => new { x.Source, x.ContentHash }).IsUnique().HasFilter("\"ExternalId\" IS NULL");
+    }
+}
+
+internal sealed class ImportRunConfiguration : IEntityTypeConfiguration<ImportRun>
+{
+    public void Configure(EntityTypeBuilder<ImportRun> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Source).HasMaxLength(50).IsRequired();
+        b.Property(x => x.FileName).HasMaxLength(260).IsRequired();
+        b.Property(x => x.FileHash).HasMaxLength(64).IsRequired();
+        b.Property(x => x.Content).IsRequired();
+        b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.ReportJson).HasColumnType("jsonb").IsRequired();
+        b.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
+        b.HasIndex(x => x.FileHash);
     }
 }
 

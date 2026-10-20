@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Ein Ordner je Quelle (Bitget, TradeRepublic, ...) folgt ab P4. -->
+  <!-- Ein Ordner je Quelle (Bitget, TradeRepublic, ...) folgt ab P5; Common enthält gemeinsame Bausteine. -->
   <PropertyGroup>
     <RootNamespace>KryptoSteuer.Importers</RootNamespace>
   </PropertyGroup>
@@ -7,5 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\KryptoSteuer.Application.csproj" />
     <ProjectReference Include="..\Domain\KryptoSteuer.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.*" />
   </ItemGroup>
 </Project>

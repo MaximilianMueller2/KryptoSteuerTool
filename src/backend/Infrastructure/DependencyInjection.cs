@@ -1,4 +1,6 @@
+using KryptoSteuer.Application.Accounts;
 using KryptoSteuer.Application.Health;
+using KryptoSteuer.Application.Imports;
 using KryptoSteuer.Application.Secrets;
 using KryptoSteuer.Infrastructure.Secrets;
 using KryptoSteuer.Infrastructure.Persistence;
@@ -31,6 +33,9 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IDatabaseProbe, NpgsqlDatabaseProbe>();
+        services.AddScoped<EfImportStore>();
+        services.AddScoped<IImportStore>(sp => sp.GetRequiredService<EfImportStore>());
+        services.AddScoped<IAccountRepository>(sp => sp.GetRequiredService<EfImportStore>());
 
         // Schlüsselring außerhalb der Datenbank; ohne Pfad gilt der Standardort des Betriebssystems
         // (lokal: Benutzerprofil, im Container: Volume über DataProtection__KeysPath).

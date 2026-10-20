@@ -45,7 +45,7 @@ public class IdempotencyKeyTests
     {
         var raw = new RawRecord
         {
-            Source = "bitget", ExternalId = "42", Payload = "{}", FileHash = "h",
+            Source = "bitget", ExternalId = "42", Payload = "{}", FileHash = "h", ContentHash = IdempotencyKey.Sha256Hex("{}"),
             ImportRunId = Guid.NewGuid(), ImportedAtUtc = DateTimeOffset.UnixEpoch,
         };
         var tx = new Transaction
