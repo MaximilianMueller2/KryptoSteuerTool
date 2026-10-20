@@ -138,7 +138,7 @@ public sealed class BitgetApiImporter : IImporter
         var item = root.GetProperty("item");
         var baseCoin = Str(root, "baseCoin");
         var quoteCoin = Str(root, "quoteCoin");
-        var b = new Builder(record, context);
+        var b = new BitgetTxBuilder(record, context);
 
         switch (kind)
         {
@@ -172,12 +172,12 @@ public sealed class BitgetApiImporter : IImporter
             }
 
             case BitgetBundle.FuturesBills:
-                return b.One(FuturesLike(b, item, Str(item, "businessType") ?? "", Req(item, "coin"),
-                    Dec(item, "amount") ?? 0m, Dec(item, "fee") ?? 0m, Time(item, "cTime")));
+                return b.One(BitgetFuturesMapper.Map(b, Str(item, "businessType") ?? "", Req(item, "coin"),
+                    Dec(item, "amount") ?? 0m, Dec(item, "fee") ?? 0m, Time(item, "cTime"), Str(item, "symbol")));
 
             case BitgetBundle.UtaFinancial:
-                return b.One(FuturesLike(b, item, Str(item, "type") ?? "", Req(item, "coin"),
-                    Dec(item, "amount") ?? 0m, Dec(item, "fee") ?? 0m, Time(item, "ts")));
+                return b.One(BitgetFuturesMapper.Map(b, Str(item, "type") ?? "", Req(item, "coin"),
+                    Dec(item, "amount") ?? 0m, Dec(item, "fee") ?? 0m, Time(item, "ts"), Str(item, "symbol")));
 
             case BitgetBundle.Convert:
                 return b.One(ConvertTx(b, item));
@@ -195,7 +195,7 @@ public sealed class BitgetApiImporter : IImporter
 
     // Spot-/UTA-Fill: buy = Base rein, Quote raus; sell = Base raus, Quote rein.
     private static Transaction Trade(
-        Builder b, JsonElement item, string? baseCoin, string? quoteCoin, string? side,
+        BitgetTxBuilder b, JsonElement item, string? baseCoin, string? quoteCoin, string? side,
         decimal? baseAmount, decimal? quoteAmount, DateTimeOffset time, IReadOnlyList<(string Coin, decimal Amount)> fees)
     {
         if (baseCoin is null || quoteCoin is null)
@@ -223,7 +223,7 @@ public sealed class BitgetApiImporter : IImporter
         return b.Build(buy ? TransactionType.Buy : TransactionType.Sell, time, legs);
     }
 
-    private static Transaction SpotBill(Builder b, JsonElement item)
+    private static Transaction SpotBill(BitgetTxBuilder b, JsonElement item)
     {
         var business = Str(item, "businessType") ?? "";
         var coin = Req(item, "coin");
@@ -244,52 +244,7 @@ public sealed class BitgetApiImporter : IImporter
         return b.Build(type.Value, time, [b.Leg(coin, size, LegDirection.In)], note: business);
     }
 
-    // Futures-Bills (Classic) und UTA-Finanzbuchungen: Gewinn/Verlust, Funding, Liquidation; Rest zur Prüfung.
-    private static Transaction FuturesLike(
-        Builder b, JsonElement item, string label, string coin, decimal amount, decimal fee, DateTimeOffset time)
-    {
-        var t = label.ToLowerInvariant();
-        var feeAbs = Math.Abs(fee);
-
-        TransactionLeg? FeeLeg() => feeAbs > 0 ? b.Leg(coin, feeAbs, LegDirection.Out, isFee: true) : null;
-
-        List<TransactionLeg> WithFee(TransactionLeg main)
-        {
-            var legs = new List<TransactionLeg> { main };
-            if (FeeLeg() is { } f) legs.Add(f);
-            return legs;
-        }
-
-        TransactionLeg Signed() => b.Leg(coin, Math.Abs(amount), amount < 0 ? LegDirection.Out : LegDirection.In);
-
-        if (t.Contains("force") || t.Contains("burst") || t.Contains("liq"))
-            return amount == 0
-                ? b.Build(TransactionType.Fee, time, [b.Leg(coin, Positive(feeAbs, "fee"), LegDirection.Out)], note: label)
-                : b.Build(TransactionType.Liquidation, time, WithFee(Signed()), note: label);
-
-        if (t.Contains("settle_fee") || t.Contains("funding"))
-            return amount == 0
-                ? b.Ignored(time, label, "Betrag 0")
-                : b.Build(TransactionType.FundingFee, time, [Signed()], note: label);
-
-        if (t.StartsWith("open_", StringComparison.Ordinal) || t.StartsWith("close_", StringComparison.Ordinal)
-            || t.Contains("_close_"))
-        {
-            if (amount == 0)
-                return feeAbs > 0
-                    ? b.Build(TransactionType.Fee, time, [b.Leg(coin, feeAbs, LegDirection.Out)], note: label)
-                    : b.Ignored(time, label, "Betrag 0");
-            return b.Build(TransactionType.FuturesPnL, time, WithFee(Signed()), note: label);
-        }
-
-        if (t.Contains("transfer") || t.StartsWith("trans_", StringComparison.Ordinal) || t.Contains("margin"))
-            return b.Ignored(time, label, "interne Buchung (Transfer/Margin) zwischen Bitget-Konten");
-
-        return b.Review(time, label.Length > 0 ? label : "futures-bill",
-            amount == 0 ? [] : [b.Leg(coin, Math.Abs(amount), amount < 0 ? LegDirection.Out : LegDirection.In)]);
-    }
-
-    private static Transaction ConvertTx(Builder b, JsonElement item)
+    private static Transaction ConvertTx(BitgetTxBuilder b, JsonElement item)
     {
         var time = Time(item, "ts");
         var fee = Dec(item, "fee");
@@ -300,7 +255,7 @@ public sealed class BitgetApiImporter : IImporter
         ], note: fee is > 0 ? $"Convert (Gebühr laut Bitget: {fee.Value.ToString(CultureInfo.InvariantCulture)}, Coin unbekannt, nicht gebucht)" : "Convert");
     }
 
-    private static Transaction EarnSavings(Builder b, JsonElement item)
+    private static Transaction EarnSavings(BitgetTxBuilder b, JsonElement item)
     {
         var orderType = Str(item, "orderType") ?? "";
         var time = Time(item, "ts");
@@ -321,34 +276,6 @@ public sealed class BitgetApiImporter : IImporter
     }
 
     // ---- Hilfen ------------------------------------------------------------------------------------------
-
-    private sealed class Builder(RawRecord record, ImportContext context)
-    {
-        public IReadOnlyList<Transaction> One(Transaction t) => [t];
-
-        public TransactionLeg Leg(string symbol, decimal amount, LegDirection direction, bool isFee = false) =>
-            new() { AssetId = context.Assets.Resolve(symbol), Amount = amount, Direction = direction, IsFee = isFee };
-
-        public Transaction Build(
-            TransactionType type, DateTimeOffset time, List<TransactionLeg> legs,
-            TransactionStatus status = TransactionStatus.Ok, string? note = null) => new()
-        {
-            Type = type, TimestampUtc = time, AccountId = context.AccountId, Source = record.Source,
-            ExternalId = record.ExternalId, ContentHash = record.ContentHash, Status = status, Note = note,
-            Legs = legs, RawRecordIds = [record.Id],
-        };
-
-        /// <summary>Unbekannte Buchungsart: nie verwerfen, sondern NeedsReview mit Rohzeile.</summary>
-        public Transaction Review(DateTimeOffset time, string typeName, List<TransactionLeg> legs)
-        {
-            context.AddUnknownType(typeName);
-            return Build(TransactionType.Unknown, time, legs, TransactionStatus.NeedsReview, $"Unbekannter Typ '{typeName}'");
-        }
-
-        /// <summary>Bekannte, aber steuerlich irrelevante Buchung (z. B. interner Transfer): gespeichert mit Status Ignored.</summary>
-        public Transaction Ignored(DateTimeOffset time, string typeName, string reason) =>
-            Build(TransactionType.Unknown, time, [], TransactionStatus.Ignored, $"{typeName}: {reason}");
-    }
 
     private static string DestNote(JsonElement item) =>
         string.Equals(Str(item, "dest"), "internal_transfer", StringComparison.OrdinalIgnoreCase)

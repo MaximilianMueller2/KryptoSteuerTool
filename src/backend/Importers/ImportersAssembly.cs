@@ -18,6 +18,7 @@ public static class ImportersAssembly
     {
         services.AddSingleton<IImporter, GenericCsvImporter>();
         services.AddSingleton<IImporter, BitgetApiImporter>();
+        services.AddSingleton<IImporter, BitgetCsvImporter>();
         return services;
     }
 }

@@ -7,10 +7,15 @@ namespace KryptoSteuer.Application.Imports;
 /// <param name="NeedsReview">Buchungen mit Status NeedsReview (z. B. unbekannter Typ).</param>
 /// <param name="Errors">Fehlerhafte Zeilen mit Zeilennummer und Grund; sie werden nicht geschrieben.</param>
 /// <param name="UnknownTypes">Unbekannte Transaktionstypen der Quelle.</param>
+/// <param name="Warnings">Hinweise ohne Abbruch (Zeitzone, Kontostand-Lücken, Duplikate aus anderer Quelle).</param>
 public sealed record ImportReport(
     int RowsRead,
     int New,
     int Duplicates,
     int NeedsReview,
     IReadOnlyList<ImportError> Errors,
-    IReadOnlyList<string> UnknownTypes);
+    IReadOnlyList<string> UnknownTypes,
+    IReadOnlyList<string>? Warnings = null)
+{
+    public IReadOnlyList<string> Warnings { get; init; } = Warnings ?? [];
+}

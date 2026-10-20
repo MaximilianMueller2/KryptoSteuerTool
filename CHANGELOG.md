@@ -38,6 +38,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   täglicher Hintergrundjob, Saldo-Abgleich mit Review-Queue.
 - API: `PUT/GET/DELETE /api/accounts/{id}/bitget`, `POST /api/accounts/{id}/bitget/sync`, `GET /api/review-items`.
 - Entitäten `ExchangeCredential`, `SyncState`, `ReviewItem`; Migration `BitgetSync`; Doku mit Anleitung „Bitget-API-Key mit Leserechten anlegen“.
+- Bitget-CSV-Import für Futures (P6): Format-Erkennung an der Kopfzeile, Zeitzonen-Erkennung aus den Funding-Zeilen (Option `timeZone`),
+  Kontostand-Prüfung über die Spalte `Wallet balance`, Zuordnung aller Buchungsarten der Beispieldatei (Funding, Gebühren, Gewinn/Verlust,
+  Liquidation, Bonus, interne Umbuchungen); gemeinsame Zuordnung mit dem API-Importer.
+- Import-Framework: Importoptionen (`ImportInput.Options`, gespeichert am Lauf), Hinweise im Importbericht (`warnings`) und Abgleich gegen
+  Buchungen anderer Quellen, damit dieselbe Buchung aus CSV und API nicht doppelt gezählt wird. Migration `ImportOptions`.
 
 ### Behoben
 

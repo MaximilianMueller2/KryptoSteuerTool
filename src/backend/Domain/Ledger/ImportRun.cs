@@ -12,6 +12,8 @@ public sealed class ImportRun
     public required string FileHash { get; init; }
     public required byte[] Content { get; init; }
     public required Guid AccountId { get; init; }
+    /// <summary>Importoptionen (z. B. <c>timeZone</c>) als JSON; gelten auch bei der Bestätigung.</summary>
+    public string? OptionsJson { get; set; }
     public required DateTimeOffset CreatedAtUtc { get; init; }
     public ImportRunStatus Status { get; set; } = ImportRunStatus.Pending;
     public DateTimeOffset? CommittedAtUtc { get; set; }

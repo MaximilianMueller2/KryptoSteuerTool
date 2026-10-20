@@ -275,6 +275,9 @@ namespace KryptoSteuer.Infrastructure.Persistence.Migrations
                         .HasMaxLength(260)
                         .HasColumnType("character varying(260)");
 
+                    b.Property<string>("OptionsJson")
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("ReportJson")
                         .IsRequired()
                         .HasColumnType("jsonb");

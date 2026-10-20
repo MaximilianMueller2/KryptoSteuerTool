@@ -41,6 +41,13 @@ internal sealed class InMemoryImportStore : IImportStore
             candidates.Select(c => c.DedupKey).Where(stored.Contains).ToHashSet());
     }
 
+    public Task<IReadOnlyList<(DateTimeOffset TimestampUtc, string Fingerprint)>> FindOtherSourceFingerprintsAsync(
+        Guid accountId, string excludeSource, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<(DateTimeOffset, string)>>(Transactions
+            .Where(t => t.AccountId == accountId && t.Source != excludeSource && t.TimestampUtc >= from && t.TimestampUtc <= to)
+            .Select(t => (t.TimestampUtc, t.Fingerprint()))
+            .ToList());
+
     public Task CommitAsync(
         ImportRun run, IReadOnlyCollection<Asset> newAssets, IReadOnlyCollection<RawRecord> rawRecords,
         IReadOnlyCollection<Transaction> transactions, CancellationToken cancellationToken)

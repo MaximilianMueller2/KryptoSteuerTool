@@ -11,7 +11,7 @@ public static class ImportEndpoints
 
         // Datei-Upload: speichert die Datei roh, parst und liefert die Vorschau. Geschrieben wird noch nichts.
         group.MapPost("/", async (
-                IFormFile file, [FromForm] Guid accountId, [FromForm] string? source,
+                IFormFile file, [FromForm] Guid accountId, [FromForm] string? source, [FromForm] string? timeZone,
                 ImportService imports, CancellationToken cancellationToken) =>
             {
                 await using var stream = file.OpenReadStream();
@@ -20,8 +20,12 @@ public static class ImportEndpoints
 
                 return await Run(async () =>
                 {
+                    // timeZone: Zeitzone der Datei, falls sie nicht erkannt werden soll (z. B. "+02:00", "UTC+2", "UTC").
+                    var options = string.IsNullOrWhiteSpace(timeZone)
+                        ? null
+                        : new Dictionary<string, string> { ["timeZone"] = timeZone.Trim() };
                     var run = await imports.PreviewAsync(
-                        new ImportInput(Path.GetFileName(file.FileName), buffer.ToArray()), accountId, source, cancellationToken);
+                        new ImportInput(Path.GetFileName(file.FileName), buffer.ToArray(), options), accountId, source, cancellationToken);
                     return Results.Created($"/api/imports/{run.Id}", run);
                 });
             })

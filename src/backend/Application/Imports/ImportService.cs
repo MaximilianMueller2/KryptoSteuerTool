@@ -49,6 +49,7 @@ public sealed class ImportService(IEnumerable<IImporter> importers, IImportStore
             FileHash = Convert.ToHexString(SHA256.HashData(input.Content)).ToLowerInvariant(),
             Content = input.Content,
             AccountId = accountId,
+            OptionsJson = input.Options is { Count: > 0 } ? JsonSerializer.Serialize(input.Options) : null,
             CreatedAtUtc = clock.GetUtcNow(),
             ReportJson = "{}",
         };
@@ -98,8 +99,11 @@ public sealed class ImportService(IEnumerable<IImporter> importers, IImportStore
     private async Task<Analysis> AnalyzeAsync(ImportRun run, IImporter importer, CancellationToken cancellationToken)
     {
         var assets = new AssetCatalog(await store.GetAssetsAsync(cancellationToken));
-        var context = new ImportContext(run.AccountId, run.Id, clock.GetUtcNow(), run.FileHash, assets);
-        var input = new ImportInput(run.FileName, run.Content);
+        var options = run.OptionsJson is null
+            ? null
+            : JsonSerializer.Deserialize<Dictionary<string, string>>(run.OptionsJson);
+        var context = new ImportContext(run.AccountId, run.Id, clock.GetUtcNow(), run.FileHash, assets, options);
+        var input = new ImportInput(run.FileName, run.Content, options);
 
         var parsed = importer.Parse(input, context).ToList();
         var existing = await store.FindExistingDedupKeysAsync(run.Source, parsed, cancellationToken);
@@ -137,15 +141,65 @@ public sealed class ImportService(IEnumerable<IImporter> importers, IImportStore
             }
         }
 
+        // Dieselbe Buchung aus einer anderen Quelle (z. B. Bitget-CSV und Bitget-API) nicht doppelt zählen.
+        var crossSource = await RemoveCrossSourceDuplicatesAsync(run, raws, transactions, cancellationToken);
+        if (crossSource > 0)
+        {
+            duplicates += crossSource;
+            context.AddWarning(
+                $"{crossSource} Buchungen stimmen (Zeitpunkt auf 1 Sekunde, Typ, Mengen) mit bereits importierten Buchungen " +
+                "einer anderen Quelle überein und wurden als Duplikate verworfen.");
+        }
+
         var report = new ImportReport(
             context.RowsRead,
             transactions.Count,
             duplicates,
             transactions.Count(t => t.Status == TransactionStatus.NeedsReview),
             context.Errors.OrderBy(e => e.LineNumber).ToList(),
-            [.. context.UnknownTypes]);
+            [.. context.UnknownTypes],
+            [.. context.Warnings]);
 
         return new Analysis(report, [.. assets.NewAssets], raws, transactions);
+    }
+
+    /// <summary>Höchstabweichung der Zeitstempel beim Abgleich zwischen Quellen (Sekundengenauigkeit gegen Millisekunden).</summary>
+    private static readonly TimeSpan CrossSourceTolerance = TimeSpan.FromSeconds(1.5);
+
+    private async Task<int> RemoveCrossSourceDuplicatesAsync(
+        ImportRun run, List<RawRecord> raws, List<Transaction> transactions, CancellationToken cancellationToken)
+    {
+        if (transactions.Count == 0)
+            return 0;
+
+        var from = transactions.Min(t => t.TimestampUtc) - CrossSourceTolerance;
+        var to = transactions.Max(t => t.TimestampUtc) + CrossSourceTolerance;
+        var others = await store.FindOtherSourceFingerprintsAsync(run.AccountId, run.Source, from, to, cancellationToken);
+        if (others.Count == 0)
+            return 0;
+
+        // Jede bestehende Buchung kann nur einmal "verbraucht" werden: zwei gleiche neue Zeilen bei einer bestehenden
+        // ergeben ein Duplikat und eine neue Buchung.
+        var pool = others.GroupBy(o => o.Fingerprint).ToDictionary(g => g.Key, g => g.Select(o => o.TimestampUtc).ToList());
+        var drop = new HashSet<Transaction>();
+        foreach (var tx in transactions)
+        {
+            if (!pool.TryGetValue(tx.Fingerprint(), out var times))
+                continue;
+            var index = times.FindIndex(t => (t - tx.TimestampUtc).Duration() <= CrossSourceTolerance);
+            if (index < 0)
+                continue;
+            times.RemoveAt(index);
+            drop.Add(tx);
+        }
+
+        if (drop.Count == 0)
+            return 0;
+
+        var droppedRaw = drop.SelectMany(t => t.RawRecordIds).ToHashSet();
+        transactions.RemoveAll(drop.Contains);
+        raws.RemoveAll(r => droppedRaw.Contains(r.Id));
+        return drop.Count;
     }
 
     private static ImportReport ReadReport(ImportRun run) =>

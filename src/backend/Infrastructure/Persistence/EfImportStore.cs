@@ -46,6 +46,15 @@ public sealed class EfImportStore(AppDbContext db) : IImportStore, IAccountRepos
             .ToHashSet();
     }
 
+    public async Task<IReadOnlyList<(DateTimeOffset TimestampUtc, string Fingerprint)>> FindOtherSourceFingerprintsAsync(
+        Guid accountId, string excludeSource, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken)
+    {
+        var existing = await db.Transactions.AsNoTracking().Include(t => t.Legs)
+            .Where(t => t.AccountId == accountId && t.Source != excludeSource && t.TimestampUtc >= from && t.TimestampUtc <= to)
+            .ToListAsync(cancellationToken);
+        return existing.Select(t => (t.TimestampUtc, t.Fingerprint())).ToList();
+    }
+
     public async Task CommitAsync(
         ImportRun run,
         IReadOnlyCollection<Asset> newAssets,

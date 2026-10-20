@@ -61,6 +61,7 @@ internal sealed class ImportRunConfiguration : IEntityTypeConfiguration<ImportRu
         b.Property(x => x.Content).IsRequired();
         b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
         b.Property(x => x.ReportJson).HasColumnType("jsonb").IsRequired();
+        b.Property(x => x.OptionsJson).HasColumnType("jsonb");
         b.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
         b.HasIndex(x => x.FileHash);
     }

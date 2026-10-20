@@ -1,7 +1,7 @@
 # 04 – Importe
 
-Stand: P5 (Bitget-API). Es gibt das allgemeine CSV-Format `generic-csv` als Referenz und den Bitget-API-Connector
-(`bitget-api`). Importer für Bitget-CSV (P6) und Trade Republic (P7) folgen.
+Stand: P6 (Bitget-CSV, Futures). Es gibt das allgemeine CSV-Format `generic-csv` als Referenz, den Bitget-API-Connector
+(`bitget-api`) und den Bitget-CSV-Import für Futures (`bitget-csv`). CSV für Bitget-Spot, Ein-/Auszahlungen und Earn sowie Trade Republic (P7) folgen.
 
 Code: `Application/Imports` (Schnittstelle, Ablauf, Ports), `Importers/` (ein Ordner je Quelle, `Common/` für
 gemeinsame Bausteine), `Infrastructure/Persistence/EfImportStore.cs`, `Api/Endpoints/ImportEndpoints.cs`.
@@ -48,6 +48,7 @@ sequenceDiagram
 | `needsReview` | Buchungen mit Status `NeedsReview` |
 | `errors` | `lineNumber` und `reason` je fehlerhafter Zeile; diese Zeilen werden nicht geschrieben |
 | `unknownTypes` | unbekannte Transaktionstypen der Quelle |
+| `warnings` | Hinweise ohne Abbruch: abgeleitete Zeitzone, Lücken im Kontostand, Buchungen, die schon aus einer anderen Quelle vorliegen |
 
 **Unbekannte Typen werden nie stillschweigend verworfen:** Sie werden als `Transaction` mit
 `Type = Unknown`, `Status = NeedsReview` und Hinweis im `Note` gespeichert und landen in der Review-Queue.
@@ -57,7 +58,7 @@ sequenceDiagram
 | Endpunkt | Zweck |
 |---|---|
 | `POST /api/accounts`, `GET /api/accounts` | Konten anlegen/auflisten (Importe brauchen ein Konto) |
-| `POST /api/imports` | Multipart: `file`, `accountId`, optional `source`; liefert die Vorschau (201) |
+| `POST /api/imports` | Multipart: `file`, `accountId`, optional `source`, optional `timeZone` (Zeitzone der Datei, z. B. `+02:00`); liefert die Vorschau (201) |
 | `GET /api/imports/{id}` | Bericht eines Laufs |
 | `POST /api/imports/{id}/commit` | festschreiben (409, wenn schon bestätigt) |
 | `DELETE /api/imports/{id}` | nur unbestätigte Läufe (409 sonst, 204 bei Erfolg) |
@@ -241,3 +242,79 @@ erwarten, wenn Daten älter als 90 Tage fehlen (dann zuerst den CSV-Import nutze
 | `DELETE /api/accounts/{id}/bitget` | Key und Sync-Zustand entfernen; importierte Buchungen bleiben |
 | `POST /api/accounts/{id}/bitget/sync` | jetzt synchronisieren |
 | `GET /api/review-items` | offene Einträge der Review-Queue |
+
+## Bitget-CSV: Futures-Verlauf (P6)
+
+Code: `Importers/Bitget/BitgetCsvImporter.cs`, `ExportTimeZone.cs`, gemeinsame Zuordnung in `BitgetBooking.cs`.
+Getestet mit einem echten USDT-M-Futures-Export (5.009 Zeilen, 12.11.2024 bis 20.10.2026): alle Zeilen gelesen, keine
+Fehler, Zeitzone erkannt, Kontostand lückenlos, Bestand gleich Endkontostand minus Transfers. In `tests/fixtures/bitget/`
+liegen nur die ersten 100 Zeilen davon (Order-Nummern durch Platzhalter ersetzt).
+
+### Export im Bitget-Webinterface
+
+Der Export heißt `Exported_USDT-M_Futures_transactions-<Datum>.csv` (englische Oberfläche). Er enthält alle Konto-Buchungen des
+Futures-Kontos (Gebühren, Gewinn und Verlust, Funding, Liquidationen, Transfers), nicht nur die Trades. Der Menüpfad kann sich
+ändern: Er liegt im Futures-Bereich unter dem Transaktions- bzw. Orderverlauf (Schaltfläche „Export“); bitte in der eigenen
+Oberfläche nachsehen. Ein Export deckt einen Zeitraum ab; bei längerer Historie mehrere Zeiträume einzeln exportieren. Wie weit
+zurück und wie lang ein Export maximal sein darf, zeigt die Oberfläche (nicht geprüft). Für COIN-M-Futures gilt vermutlich dasselbe
+Format; das ist **nicht getestet**.
+
+### Format
+
+Spalten: `Order, Date, Coin, Futures, Margin Mode, Type, Amount, Fee, Wallet balance`.
+
+- Zeilen stehen **neueste zuerst**; die Datei hat BOM und CRLF; die **Order-Nummer beginnt mit einem Tabulator** (wird entfernt).
+- `Fee` ist negativ (Gebühr). Der Kontostand ändert sich je Zeile um `Amount + Fee`.
+- `Futures` ist das Symbol, bei Transfers `NULL`. `Date` hat das Format `yyyy-MM-dd HH:mm:ss` in der **Zeitzone des Kontos**.
+- Die Order-Nummer ist eindeutig; sie bildet die externe ID (`futures:<Order>`).
+
+### Zeitzone
+
+Bitget schreibt die Zeiten in der im Konto eingestellten Zeitzone, ohne Angabe in der Datei. Der Import leitet sie aus den
+Funding-Zeilen ab (Bitget rechnet Funding um 00:00, 08:00 und 16:00 UTC ab, 4-Stunden-Verträge auf denselben Zeitpunkten).
+Bei der Beispieldatei liegt das Funding das ganze Jahr über um 02, 10 und 18 Uhr: **feste Verschiebung UTC+2, ohne Sommer-/
+Winterzeit**. Die abgeleitete Zeitzone steht als Hinweis im Bericht. Mehrdeutigkeit (Vielfache von 8 Stunden) löst der Import
+zugunsten des Werts, der Mitteleuropa am nächsten liegt. Wer das ändern will, gibt beim Upload `timeZone` an
+(`+02:00`, `UTC+2`, `UTC`, `-05:00`; die Angabe wird beim Festschreiben wiederverwendet). Ohne Funding-Zeilen und ohne Angabe
+bricht der Import mit der Frage nach der Zeitzone ab.
+
+### Kontostand-Prüfung
+
+Die Spalte `Wallet balance` wird als Integritätsprüfung genutzt: Chronologisch muss `Kontostand = vorheriger Kontostand + Amount + Fee`
+gelten (Ausnahme `adjust_*`, siehe unten). Abweichungen erscheinen als Hinweis mit Zeilennummer, Zeitpunkt, erwartetem und
+tatsächlichem Wert: Es fehlen dann vermutlich Zeilen oder ein Zeitraum im Export. Beginnt die Datei nicht bei Kontostand 0,
+wird auf einen möglicherweise unvollständigen Export hingewiesen. Der Import läuft in beiden Fällen weiter.
+
+### Zuordnung der Buchungsarten
+
+API (`businessType`) und CSV (`Type`) nutzen dieselbe Zuordnung (`BitgetFuturesMapper`):
+
+| Type | Buchung | Hinweis |
+|---|---|---|
+| `contract_margin_settle_fee` (API: `contract_settle_fee`) | `FundingFee` | Betrag mit Vorzeichen |
+| `open_long`, `open_short` | `Fee` | `Amount` ist 0, nur die Gebühr zählt |
+| `close_long`, `close_short` | `FuturesPnL` mit Gebührenbein | realisierter Gewinn/Verlust |
+| `burst_close_long`, `burst_close_short` | `Liquidation` mit Gebührenbein | |
+| `risk_captital_user_transfer` | `Liquidation` | zusätzlicher Verlust nach einer Liquidation (Schreibweise „captital“ so bei Bitget) |
+| `user_grants_issue` | `Bonus` | Gutschrift von Bitget; steuerliche Einordnung prüfen |
+| `trans_from_exchange` | gespeichert mit Status `Ignored` | Transfer von Spot nach Futures, steuerneutral |
+| `adjust_down_leverage`, `adjust_margin_ifm` | gespeichert mit Status `Ignored` | Margin-Umverteilung; ändert den Kontostand nicht (an den Daten nachgewiesen) |
+| alles andere | `Unknown`, Status `NeedsReview` | mit Rohzeile, Typ steht im Bericht |
+
+In der Beispieldatei: 4.288 Funding, 449 Gebühren, 178 Gewinn/Verlust, 55 Liquidationen (30 `burst_close`, 25 Risk-Capital),
+38 ignorierte Umbuchungen, 1 Bonus.
+
+### Dieselbe Buchung aus CSV und API nicht doppelt zählen
+
+Beide Quellen enthalten dieselben Futures-Buchungen (API: die letzten 90 Tage, CSV: alles). Weil Order-Nummer und API-`billId`
+nicht als gleich nachgewiesen sind, vergleicht der Import zusätzlich inhaltlich: **gleiches Konto, gleicher Typ, gleiche Beine
+(Richtung, Coin, Menge, Gebühr) und Zeitpunkt auf 1,5 Sekunden genau** (CSV hat Sekunden, API Millisekunden). Eine solche
+Buchung aus einer anderen Quelle wird als Duplikat verworfen (Warnung im Bericht); jede bestehende Buchung kann nur einmal
+verbraucht werden. Voraussetzung ist die richtige Zeitzone: Stimmt sie nicht, stimmen die Zeitpunkte nicht und es würde doppelt
+gezählt. Die Reihenfolge der Importe ist egal. Innerhalb derselben Quelle gilt nur die Order-Nummer, nicht der Inhalt.
+
+### Noch nicht abgedeckt
+
+Bitget-Exporte für **Spot-Orders, Ein-/Auszahlungen, Earn und Convert**, andere Sprachen der Oberfläche und mehrere
+Format-Versionen: Dafür liegen keine Beispieldateien vor. Der Importer erkennt Dateien an der Kopfzeile; weitere Formate werden
+als eigene Erkennung ergänzt, sobald echte Dateien da sind.

@@ -40,13 +40,16 @@ public sealed class ImportEndpointTests : IAsyncLifetime
         return body.GetProperty("id").GetGuid();
     }
 
-    private async Task<HttpResponseMessage> Upload(Guid accountId, string fixture, string? source = null)
+    private Task<HttpResponseMessage> Upload(Guid accountId, string fixture, string? source = null, string folder = "generic-csv", string? timeZone = null) =>
+        UploadBytes(accountId, fixture, File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "fixtures", folder, fixture)), source, timeZone);
+
+    private async Task<HttpResponseMessage> UploadBytes(Guid accountId, string name, byte[] bytes, string? source = null, string? timeZone = null)
     {
         using var form = new MultipartFormDataContent();
-        var file = new ByteArrayContent(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "fixtures", "generic-csv", fixture)));
-        form.Add(file, "file", fixture);
+        form.Add(new ByteArrayContent(bytes), "file", name);
         form.Add(new StringContent(accountId.ToString()), "accountId");
         if (source != null) form.Add(new StringContent(source), "source");
+        if (timeZone != null) form.Add(new StringContent(timeZone), "timeZone");
         return await _client.PostAsync("/api/imports", form);
     }
 
@@ -148,5 +151,73 @@ public sealed class ImportEndpointTests : IAsyncLifetime
         var json = await _client.GetStringAsync("/openapi/v1.json");
 
         json.Should().Contain("/api/imports").And.Contain("/api/imports/{id}/commit").And.Contain("/api/accounts");
+    }
+
+    // ---- Bitget-CSV (Futures) --------------------------------------------------------------------------------
+
+    [Fact]
+    public async Task Bitget_Futures_CSV_wird_erkannt_importiert_und_beim_zweiten_Mal_als_Duplikat_gemeldet()
+    {
+        var accountId = await CreateAccount();
+
+        var preview = await (await Upload(accountId, "futures-usdtm-start.csv", folder: "bitget")).Content.ReadFromJsonAsync<JsonElement>();
+
+        preview.GetProperty("source").GetString().Should().Be("bitget-csv");
+        var report = preview.GetProperty("report");
+        report.GetProperty("rowsRead").GetInt32().Should().Be(100);
+        report.GetProperty("new").GetInt32().Should().Be(100);
+        report.GetProperty("errors").GetArrayLength().Should().Be(0);
+        report.GetProperty("warnings").EnumerateArray().Single().GetString().Should().Contain("UTC+02:00");
+        (await CountAsync<Transaction>()).Should().Be(0);
+
+        await _client.PostAsync($"/api/imports/{preview.GetProperty("id").GetGuid()}/commit", null);
+        (await CountAsync<Transaction>()).Should().Be(100);
+        (await CountAsync<RawRecord>()).Should().Be(100);
+
+        var again = await (await Upload(accountId, "futures-usdtm-start.csv", folder: "bitget")).Content.ReadFromJsonAsync<JsonElement>();
+        again.GetProperty("report").GetProperty("duplicates").GetInt32().Should().Be(100);
+        again.GetProperty("report").GetProperty("new").GetInt32().Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Formularfeld_timeZone_wird_gespeichert_und_bei_der_Bestaetigung_verwendet()
+    {
+        var accountId = await CreateAccount();
+        var preview = await (await Upload(accountId, "futures-usdtm-mixed.csv", folder: "bitget", timeZone: "UTC")).Content.ReadFromJsonAsync<JsonElement>();
+        preview.GetProperty("report").GetProperty("warnings").EnumerateArray().Single().GetString().Should().Contain("laut Option");
+
+        await _client.PostAsync($"/api/imports/{preview.GetProperty("id").GetGuid()}/commit", null);
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        (await db.Transactions.MinAsync(t => t.TimestampUtc)).Should().Be(new DateTimeOffset(2026, 3, 1, 9, 0, 0, TimeSpan.Zero));
+        (await db.ImportRuns.SingleAsync()).OptionsJson.Should().Contain("UTC");
+    }
+
+    [Fact]
+    public async Task Dieselben_Buchungen_aus_Bitget_CSV_und_Bitget_API_werden_nicht_doppelt_gespeichert()
+    {
+        var accountId = await CreateAccount();
+        var csv = await (await Upload(accountId, "futures-usdtm-mixed.csv", folder: "bitget")).Content.ReadFromJsonAsync<JsonElement>();
+        await _client.PostAsync($"/api/imports/{csv.GetProperty("id").GetGuid()}/commit", null);
+        var before = await CountAsync<Transaction>();
+
+        // dieselbe Funding-Zeile wie in der CSV (2026-03-01 10:00:05 in UTC+2) und eine neue
+        var bundle = """
+        { "format": "bitget-api-bundle/1", "accountType": "classic", "symbols": [], "sections": [
+          { "kind": "futures-bills", "endpoint": "/api/v2/mix/account/bill", "items": [
+            { "billId": "A1", "symbol": "BTCUSDT", "amount": "0.5", "fee": "0", "businessType": "contract_settle_fee", "coin": "USDT", "cTime": "1772352005412" },
+            { "billId": "A9", "symbol": "BTCUSDT", "amount": "7.77", "fee": "-0.1", "businessType": "close_long", "coin": "USDT", "cTime": "1772445600100" } ] } ] }
+        """;
+        var api = await (await UploadBytes(accountId, "sync.json", System.Text.Encoding.UTF8.GetBytes(bundle))).Content.ReadFromJsonAsync<JsonElement>();
+
+        api.GetProperty("source").GetString().Should().Be("bitget-api");
+        var report = api.GetProperty("report");
+        report.GetProperty("duplicates").GetInt32().Should().Be(1);
+        report.GetProperty("new").GetInt32().Should().Be(1);
+        report.GetProperty("warnings").EnumerateArray().Select(w => w.GetString()).Should().Contain(w => w!.Contains("anderen Quelle"));
+
+        await _client.PostAsync($"/api/imports/{api.GetProperty("id").GetGuid()}/commit", null);
+        (await CountAsync<Transaction>()).Should().Be(before + 1);
     }
 }

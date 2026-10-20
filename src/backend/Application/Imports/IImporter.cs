@@ -3,7 +3,8 @@ using KryptoSteuer.Domain.Ledger;
 namespace KryptoSteuer.Application.Imports;
 
 /// <summary>Eingabe eines Imports: Datei bzw. gespeicherte API-Antwort, roh.</summary>
-public sealed record ImportInput(string FileName, byte[] Content);
+/// <param name="Options">Optionale Importoptionen, z. B. <c>timeZone</c> ("+02:00", "UTC+2", "UTC").</param>
+public sealed record ImportInput(string FileName, byte[] Content, IReadOnlyDictionary<string, string>? Options = null);
 
 /// <summary>
 /// Eine Importquelle (Bitget, Trade Republic, ...). Ablauf: <see cref="Parse"/> liest Rohdaten,
