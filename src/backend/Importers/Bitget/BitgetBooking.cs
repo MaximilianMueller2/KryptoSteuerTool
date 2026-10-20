@@ -1,36 +1,8 @@
 using KryptoSteuer.Application.Imports;
 using KryptoSteuer.Domain.Ledger;
+using KryptoSteuer.Importers.Common;
 
 namespace KryptoSteuer.Importers.Bitget;
-
-/// <summary>Baut Buchungen aus einer Rohzeile; gemeinsam für API- und CSV-Importer von Bitget.</summary>
-internal sealed class BitgetTxBuilder(RawRecord record, ImportContext context)
-{
-    public IReadOnlyList<Transaction> One(Transaction t) => [t];
-
-    public TransactionLeg Leg(string symbol, decimal amount, LegDirection direction, bool isFee = false) =>
-        new() { AssetId = context.Assets.Resolve(symbol), Amount = amount, Direction = direction, IsFee = isFee };
-
-    public Transaction Build(
-        TransactionType type, DateTimeOffset time, List<TransactionLeg> legs,
-        TransactionStatus status = TransactionStatus.Ok, string? note = null) => new()
-    {
-        Type = type, TimestampUtc = time, AccountId = context.AccountId, Source = record.Source,
-        ExternalId = record.ExternalId, ContentHash = record.ContentHash, Status = status, Note = note,
-        Legs = legs, RawRecordIds = [record.Id],
-    };
-
-    /// <summary>Unbekannte Buchungsart: nie verwerfen, sondern NeedsReview mit Rohzeile.</summary>
-    public Transaction Review(DateTimeOffset time, string typeName, List<TransactionLeg> legs)
-    {
-        context.AddUnknownType(typeName);
-        return Build(TransactionType.Unknown, time, legs, TransactionStatus.NeedsReview, $"Unbekannter Typ '{typeName}'");
-    }
-
-    /// <summary>Bekannte, aber steuerlich irrelevante Buchung (z. B. interner Transfer): gespeichert mit Status Ignored.</summary>
-    public Transaction Ignored(DateTimeOffset time, string typeName, string reason) =>
-        Build(TransactionType.Unknown, time, [], TransactionStatus.Ignored, $"{typeName}: {reason}");
-}
 
 /// <summary>
 /// Zuordnung der Bitget-Futures-Buchungsarten (API-<c>businessType</c> bzw. CSV-Spalte <c>Type</c>) zu Buchungen.
@@ -39,7 +11,7 @@ internal sealed class BitgetTxBuilder(RawRecord record, ImportContext context)
 internal static class BitgetFuturesMapper
 {
     public static Transaction Map(
-        BitgetTxBuilder b, string label, string coin, decimal amount, decimal fee, DateTimeOffset time, string? symbol)
+        ImportTxBuilder b, string label, string coin, decimal amount, decimal fee, DateTimeOffset time, string? symbol)
     {
         var t = label.ToLowerInvariant();
         var feeAbs = Math.Abs(fee);

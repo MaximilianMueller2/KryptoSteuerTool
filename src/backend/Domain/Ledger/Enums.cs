@@ -9,6 +9,8 @@ public enum TransactionType
     Buy, Sell, Trade, Deposit, Withdrawal, TransferIn, TransferOut,
     Staking, Lending, Airdrop, Mining, Bonus, Interest, Dividend,
     Fee, Spend, GiftIn, GiftOut, FuturesPnL, FundingFee, Liquidation,
+    /// <summary>Steuer, die der Broker einbehalten (Out) oder erstattet (In) hat, z. B. Abgeltungsteuer bei Trade Republic.</summary>
+    Tax,
     /// <summary>Typ der Quelle ist unbekannt; wird nie verworfen, sondern als NeedsReview gespeichert.</summary>
     Unknown,
 }

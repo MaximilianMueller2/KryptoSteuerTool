@@ -181,7 +181,7 @@ public sealed class BitgetCsvImporter : IImporter
         var coin = Field(header, row, "Coin").Trim();
         if (coin.Length == 0) throw new ImportRowException("Spalte Coin ist leer.");
 
-        var builder = new BitgetTxBuilder(record, context);
+        var builder = new ImportTxBuilder(record, context);
         var tx = BitgetFuturesMapper.Map(builder, Field(header, row, "Type").Trim(), coin, amount, fee, time, Field(header, row, "Futures").Trim());
         return [tx];
     }

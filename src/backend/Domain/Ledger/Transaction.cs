@@ -95,8 +95,9 @@ public sealed class Transaction
             case TransactionType.FuturesPnL:
             case TransactionType.FundingFee:
             case TransactionType.Liquidation:
+            case TransactionType.Tax:
                 if (ins + outs != 1)
-                    errors.Add($"{Type} braucht genau ein Bein (Gewinn = In, Verlust = Out).");
+                    errors.Add($"{Type} braucht genau ein Bein (In oder Out).");
                 break;
         }
 

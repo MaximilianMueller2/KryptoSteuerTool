@@ -61,7 +61,7 @@ erDiagram
 | Buy, Sell, Trade | genau 1 In und 1 Out |
 | Deposit, TransferIn, Staking, Lending, Airdrop, Mining, Bonus, Interest, Dividend, GiftIn | genau 1 In |
 | Withdrawal, TransferOut, Fee, Spend, GiftOut | genau 1 Out |
-| FuturesPnL, FundingFee, Liquidation | genau 1 Bein (Gewinn = In, Verlust = Out) |
+| FuturesPnL, FundingFee, Liquidation, Tax | genau 1 Bein (Gewinn/Erstattung = In, Verlust/einbehaltene Steuer = Out) |
 
 Zusätzlich: Menge > 0, höchstens ein Gebührenbein, Gebührenbeine sind ausgehend.
 

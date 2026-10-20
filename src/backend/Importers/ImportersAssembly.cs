@@ -3,6 +3,7 @@ using System.Reflection;
 using KryptoSteuer.Application.Imports;
 using KryptoSteuer.Importers.Bitget;
 using KryptoSteuer.Importers.GenericCsv;
+using KryptoSteuer.Importers.TradeRepublic;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KryptoSteuer.Importers;
@@ -19,6 +20,7 @@ public static class ImportersAssembly
         services.AddSingleton<IImporter, GenericCsvImporter>();
         services.AddSingleton<IImporter, BitgetApiImporter>();
         services.AddSingleton<IImporter, BitgetCsvImporter>();
+        services.AddSingleton<IImporter, TradeRepublicCsvImporter>();
         return services;
     }
 }

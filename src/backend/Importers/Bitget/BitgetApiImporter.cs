@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using KryptoSteuer.Application.Imports;
 using KryptoSteuer.Domain.Ledger;
+using KryptoSteuer.Importers.Common;
 
 namespace KryptoSteuer.Importers.Bitget;
 
@@ -138,7 +139,7 @@ public sealed class BitgetApiImporter : IImporter
         var item = root.GetProperty("item");
         var baseCoin = Str(root, "baseCoin");
         var quoteCoin = Str(root, "quoteCoin");
-        var b = new BitgetTxBuilder(record, context);
+        var b = new ImportTxBuilder(record, context);
 
         switch (kind)
         {
@@ -195,7 +196,7 @@ public sealed class BitgetApiImporter : IImporter
 
     // Spot-/UTA-Fill: buy = Base rein, Quote raus; sell = Base raus, Quote rein.
     private static Transaction Trade(
-        BitgetTxBuilder b, JsonElement item, string? baseCoin, string? quoteCoin, string? side,
+        ImportTxBuilder b, JsonElement item, string? baseCoin, string? quoteCoin, string? side,
         decimal? baseAmount, decimal? quoteAmount, DateTimeOffset time, IReadOnlyList<(string Coin, decimal Amount)> fees)
     {
         if (baseCoin is null || quoteCoin is null)
@@ -223,7 +224,7 @@ public sealed class BitgetApiImporter : IImporter
         return b.Build(buy ? TransactionType.Buy : TransactionType.Sell, time, legs);
     }
 
-    private static Transaction SpotBill(BitgetTxBuilder b, JsonElement item)
+    private static Transaction SpotBill(ImportTxBuilder b, JsonElement item)
     {
         var business = Str(item, "businessType") ?? "";
         var coin = Req(item, "coin");
@@ -244,7 +245,7 @@ public sealed class BitgetApiImporter : IImporter
         return b.Build(type.Value, time, [b.Leg(coin, size, LegDirection.In)], note: business);
     }
 
-    private static Transaction ConvertTx(BitgetTxBuilder b, JsonElement item)
+    private static Transaction ConvertTx(ImportTxBuilder b, JsonElement item)
     {
         var time = Time(item, "ts");
         var fee = Dec(item, "fee");
@@ -255,7 +256,7 @@ public sealed class BitgetApiImporter : IImporter
         ], note: fee is > 0 ? $"Convert (Gebühr laut Bitget: {fee.Value.ToString(CultureInfo.InvariantCulture)}, Coin unbekannt, nicht gebucht)" : "Convert");
     }
 
-    private static Transaction EarnSavings(BitgetTxBuilder b, JsonElement item)
+    private static Transaction EarnSavings(ImportTxBuilder b, JsonElement item)
     {
         var orderType = Str(item, "orderType") ?? "";
         var time = Time(item, "ts");

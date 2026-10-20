@@ -220,4 +220,38 @@ public sealed class ImportEndpointTests : IAsyncLifetime
         await _client.PostAsync($"/api/imports/{api.GetProperty("id").GetGuid()}/commit", null);
         (await CountAsync<Transaction>()).Should().Be(before + 1);
     }
+
+    // ---- Trade Republic ------------------------------------------------------------------------------------
+
+    [Fact]
+    public async Task Trade_Republic_CSV_wird_importiert_mit_Steuerbuchungen_und_ist_wiederholbar()
+    {
+        var accountId = await CreateAccount();
+
+        var preview = await (await Upload(accountId, "traderepublic-sample.csv", folder: "traderepublic")).Content.ReadFromJsonAsync<JsonElement>();
+
+        preview.GetProperty("source").GetString().Should().Be("traderepublic-csv");
+        var report = preview.GetProperty("report");
+        report.GetProperty("rowsRead").GetInt32().Should().Be(91);
+        report.GetProperty("errors").GetArrayLength().Should().Be(0);
+        report.GetProperty("new").GetInt32().Should().Be(97);
+        (await CountAsync<Transaction>()).Should().Be(0);
+
+        await _client.PostAsync($"/api/imports/{preview.GetProperty("id").GetGuid()}/commit", null);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            (await db.Transactions.CountAsync()).Should().Be(97);
+            (await db.RawRecords.CountAsync()).Should().Be(91);
+            (await db.Transactions.CountAsync(t => t.Type == TransactionType.Tax)).Should().Be(14);
+            (await db.Assets.CountAsync(a => a.Class == AssetClass.Fiat)).Should().Be(1);
+            (await db.Transactions.CountAsync(t => t.Status == TransactionStatus.NeedsReview)).Should().Be(9);
+        }
+
+        var again = await (await Upload(accountId, "traderepublic-sample.csv", folder: "traderepublic")).Content.ReadFromJsonAsync<JsonElement>();
+        again.GetProperty("report").GetProperty("duplicates").GetInt32().Should().Be(91);
+        again.GetProperty("report").GetProperty("new").GetInt32().Should().Be(0);
+    }
 }
+

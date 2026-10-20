@@ -43,6 +43,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   Liquidation, Bonus, interne Umbuchungen); gemeinsame Zuordnung mit dem API-Importer.
 - Import-Framework: Importoptionen (`ImportInput.Options`, gespeichert am Lauf), Hinweise im Importbericht (`warnings`) und Abgleich gegen
   Buchungen anderer Quellen, damit dieselbe Buchung aus CSV und API nicht doppelt gezählt wird. Migration `ImportOptions`.
+- Trade-Republic-CSV-Import (P7): Format-Erkennung an der Kopfzeile, Krypto (Kauf, Verkauf, Lieferung), Wertpapiere (Aktien, Fonds, Derivate),
+  Zinsen, Dividenden, Fondserträge, Steuern als eigene Buchungen, Saveback/Stockperk, Geschenke, Gebühren, Ein-/Auszahlungen; Kartenzahlungen als
+  `Ignored`, Kapitalmaßnahmen und Tilgungen in der Prüfliste. Neuer Buchungstyp `Tax`, Asset-Klassen und ISIN für Wertpapiere.
+- Gemeinsamer `ImportTxBuilder` für alle Importer; mehrere Buchungen je Zeile über Suffixe der externen ID.
 
 ### Behoben
 

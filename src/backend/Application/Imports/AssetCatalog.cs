@@ -21,6 +21,25 @@ public sealed class AssetCatalog(IEnumerable<Asset> existing)
 
     public IReadOnlyList<Asset> NewAssets => _created;
 
+    /// <summary>Wie <see cref="Resolve(string)"/>, aber mit bekannter Klasse (z. B. Aktie, Fonds) sowie Name und ISIN für neue Assets.</summary>
+    public Guid Resolve(string symbol, AssetClass assetClass, string? name = null, string? isin = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(symbol);
+        var key = symbol.Trim();
+        if (_bySymbol.TryGetValue(key, out var existing))
+            return existing.Id;
+
+        var asset = new Asset
+        {
+            Symbol = key.ToUpperInvariant(), Class = assetClass,
+            Name = string.IsNullOrWhiteSpace(name) ? null : name.Trim(),
+            Isin = string.IsNullOrWhiteSpace(isin) ? null : isin.Trim().ToUpperInvariant(),
+        };
+        _bySymbol[key] = asset;
+        _created.Add(asset);
+        return asset.Id;
+    }
+
     public Guid Resolve(string symbol)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(symbol);

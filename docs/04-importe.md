@@ -1,7 +1,8 @@
 # 04 – Importe
 
-Stand: P6 (Bitget-CSV, Futures). Es gibt das allgemeine CSV-Format `generic-csv` als Referenz, den Bitget-API-Connector
-(`bitget-api`) und den Bitget-CSV-Import für Futures (`bitget-csv`). CSV für Bitget-Spot, Ein-/Auszahlungen und Earn sowie Trade Republic (P7) folgen.
+Stand: P7 (Trade Republic). Es gibt das allgemeine CSV-Format `generic-csv` als Referenz, den Bitget-API-Connector
+(`bitget-api`), den Bitget-CSV-Import für Futures (`bitget-csv`) und den Trade-Republic-CSV-Import (`traderepublic-csv`).
+CSV für Bitget-Spot, Ein-/Auszahlungen und Earn folgen.
 
 Code: `Application/Imports` (Schnittstelle, Ablauf, Ports), `Importers/` (ein Ordner je Quelle, `Common/` für
 gemeinsame Bausteine), `Infrastructure/Persistence/EfImportStore.cs`, `Api/Endpoints/ImportEndpoints.cs`.
@@ -318,3 +319,69 @@ gezählt. Die Reihenfolge der Importe ist egal. Innerhalb derselben Quelle gilt 
 Bitget-Exporte für **Spot-Orders, Ein-/Auszahlungen, Earn und Convert**, andere Sprachen der Oberfläche und mehrere
 Format-Versionen: Dafür liegen keine Beispieldateien vor. Der Importer erkennt Dateien an der Kopfzeile; weitere Formate werden
 als eigene Erkennung ergänzt, sobald echte Dateien da sind.
+
+## Trade Republic: Transaktionsexport (P7)
+
+Code: `Importers/TradeRepublic/TradeRepublicCsvImporter.cs`. Getestet mit einem echten Export (753 Zeilen, 27.03.2024 bis
+20.10.2026): alle Zeilen gelesen, keine Fehler; Krypto-Bestände je Coin und Steuersummen stimmen exakt mit der Datei überein.
+In `tests/fixtures/traderepublic/` liegt ein anonymisierter Ausschnitt (91 Zeilen).
+
+### Export in der Trade-Republic-App
+
+In der App unter **Kontoauszüge → Transaktionsexport** (CSV; laut Katalog seit 15.04.2026 verfügbar, Menünamen ohne Gewähr, bitte in der
+eigenen App nachsehen). Der Export enthält Depot- und Kontobuchungen in einer Datei. Eine Datei reicht für die ganze Historie des Kontos
+(die Beispieldatei beginnt mit der Kontoeröffnung).
+
+### Format
+
+Spalten: `datetime, date, account_type, category, type, asset_class, name, symbol, shares, price, amount, fee, tax, currency,
+original_amount, original_currency, fx_rate, description, transaction_id, counterparty_name, counterparty_iban, payment_reference, mcc_code`.
+
+- Alle Felder stehen in Anführungszeichen, Trennzeichen Komma, UTF-8, LF. `datetime` ist **UTC** (ISO 8601 mit `Z`). Die Zeilen sind nicht
+  streng nach Zeit sortiert. `date` ist ein Buchungs-/Handelsdatum, das vom UTC-Tag abweichen kann (bei 19 Zeilen); der Import nutzt immer `datetime`.
+- `shares` hat ein Vorzeichen (Kauf positiv, Verkauf negativ). `amount` ist **brutto** (Stückzahl mal Preis); `fee` und `tax` stehen in eigenen
+  Spalten (negativ = abgezogen, bei `tax` positiv = erstattet). Das ist an den Daten nachgerechnet (Betrag = Stückzahl · Preis, auf den Cent).
+- `symbol`: Krypto-Ticker (BTC, SOL, ...), bei Wertpapieren die ISIN. Manche Coins stehen nur mit Pseudo-ISIN (z. B. `XF0RENDER015`); dann gilt der
+  Name als Ticker (`RENDER`).
+- `transaction_id` ist eine UUID und bildet die externe ID (`tr:<UUID>`). Mehrere Buchungen aus einer Zeile bekommen Suffixe (`:tax`).
+- Alle Beträge in EUR; eine andere Währung ist ein Zeilenfehler.
+
+### Zuordnung
+
+| category / type | Buchung | Hinweis |
+|---|---|---|
+| `TRADING` / `BUY`, `SELL` (Krypto) | `Buy`/`Sell`: Coin gegen EUR, Gebühr als Gebührenbein | Grundlage der Krypto-Steuerberechnung |
+| `TRADING` / `BUY`, `SELL` (Aktie, Fonds, Derivat) | `Buy`/`Sell` mit Wertpapier (ISIN, Klasse Stock/Etf/Derivative) | wird im Aktien/ETF-Modul (P20) ausgewertet |
+| Steuer in `tax` (Verkauf, Zinsen, Dividende, Steueroptimierung, Vorabpauschale) | zusätzliche `Tax`-Buchung (negativ: einbehalten = Out, positiv: erstattet = In) | für den Abgleich mit der Jahressteuerbescheinigung |
+| `DELIVERY` / `FREE_DELIVERY` (Krypto) | `TransferOut` (bzw. `TransferIn`) | Auslieferung an eine eigene Wallet/Börse, **kein Verkauf**; Zuordnung in P10 |
+| `CASH` / `INTEREST_PAYMENT` | `Interest` (+ `Tax`) | |
+| `CASH` / `DIVIDEND` | `Dividend` (+ `Tax`) | |
+| `CASH` / `EARNINGS` | Betrag > 0: `Dividend`; Betrag 0: nur `Tax` (Vorabpauschale) | |
+| `CASH` / `TAX_OPTIMIZATION` | `Tax` (Erstattung/Nachbelastung) | |
+| `CASH` / `STOCKPERK`, `BENEFITS_SAVEBACK` | `Bonus` (EUR) | die zugehörige Wertpapier-Kauf-Zeile (`BUY`) bildet die Anschaffung; Kosten = gutgeschriebener Betrag |
+| `CASH` / `GIFT` | `GiftIn` bzw. `GiftOut` (EUR) | |
+| `CASH` / `FEE`, `CARD_ORDERING_FEE` | `Fee` (EUR) | |
+| `CASH` / `CUSTOMER_*`, `TRANSFER_*` | `Deposit` (Betrag > 0) bzw. `Withdrawal` (< 0) in EUR | nach Vorzeichen des Betrags |
+| `CASH` / `CARD_TRANSACTION*` | gespeichert mit Status `Ignored` | private Kartenzahlungen, steuerlich nicht relevant; Rohdaten bleiben; Anzahl steht als Hinweis im Bericht |
+| `CORPORATE_ACTION` (Spin-off, Optionsschein-Ausübung, ...) und `CASH` / `TILG` | `Unknown`, Status `NeedsReview`, mit Stückzahl bzw. Betrag | Kapitalmaßnahmen werden erst im Aktien/ETF-Modul abgebildet |
+| alles andere | `Unknown`, Status `NeedsReview` | wird im Bericht als unbekannter Typ gezählt |
+
+Hinweistexte (`Note`) enthalten nur feste Texte, Wertpapiernamen und ISINs, **keine** Namen, IBANs oder Händlernamen. Diese stehen nur in den
+unveränderten Rohdaten.
+
+### Annahmen, die geprüft werden müssen
+
+1. `amount` bei Dividenden, Zinsen und Verkäufen ist brutto (bei Käufen und Verkäufen nachgerechnet, bei Zinsen plausibel: 26,375 % von 1,11 EUR
+   sind 0,29 EUR). Ob die Bank auf dem Verrechnungskonto den Bruttobetrag minus Steuer oder den Nettobetrag bucht, ist aus der Datei allein nicht
+   zu sehen (es gibt keine Kontostand-Spalte, anders als beim Bitget-Export).
+2. `TRANSFER_DIRECT_DEBIT_INBOUND` hat in der Beispieldatei negative Beträge; die Zuordnung folgt deshalb dem Vorzeichen (Auszahlung).
+3. `STOCKPERK`/`SAVEBACK` werden als Bonus in EUR gebucht, die Anschaffung steckt im folgenden `BUY` mit denselben Kosten.
+4. Die Kapitalmaßnahmen der Beispieldatei (Optionsschein-Ausübung mit Tilgung, Spin-off und dessen Storno) sind absichtlich nicht automatisch
+   verbucht, sondern in der Prüfliste.
+
+### Noch nicht abgedeckt
+
+- **PDF-Abrechnungen** als Ersatz für Zeiträume vor dem CSV-Export (PdfPig): nicht umgesetzt, da keine Beispiel-PDFs vorliegen. Die
+  Beispieldatei beginnt bei der Kontoeröffnung, daher aktuell nicht nötig.
+- Andere Sprachen oder Formatversionen des Exports: nicht bekannt.
+- Kontostand-Prüfung wie bei Bitget: Die Datei hat keine Kontostand-Spalte.
