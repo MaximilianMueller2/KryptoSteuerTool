@@ -46,21 +46,21 @@ public sealed class BitgetDailySyncService(
         var store = scope.ServiceProvider.GetRequiredService<IBitgetSyncStore>();
         var accounts = await store.AccountsWithCredentialsAsync(BitgetSyncService.Provider, cancellationToken);
 
-        foreach (var accountId in accounts)
+        foreach (var target in accounts)
         {
             try
             {
                 // Eigener Scope je Konto: ein Fehler (oder ein verworfener DbContext) betrifft nur dieses Konto.
                 await using var accountScope = scopes.CreateAsyncScope();
                 var result = await accountScope.ServiceProvider.GetRequiredService<BitgetSyncService>()
-                    .SyncAsync(accountId, cancellationToken);
-                logger.LogInformation("Bitget-Sync für Konto {AccountId}: {New} neue Buchungen, {Mismatches} Abweichungen.",
-                    accountId, result.Import.New, result.BalanceMismatches.Count);
+                    .SyncAsync(target, cancellationToken);
+                logger.LogInformation("Bitget-Sync für Ziel {Target}: {New} neue Buchungen, {Mismatches} Abweichungen.",
+                    target, result.Import.New, result.BalanceMismatches.Count);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                // Bewusst ohne Zugangsdaten im Log.
-                logger.LogWarning("Bitget-Sync für Konto {AccountId} fehlgeschlagen: {Message}", accountId, ex.Message);
+                // Bewusst ohne Zugangsdaten im Log; geloggt wird nur die interne ID des Sync-Ziels.
+                logger.LogWarning("Bitget-Sync für Ziel {Target} fehlgeschlagen: {Message}", target, ex.Message);
             }
         }
     }
