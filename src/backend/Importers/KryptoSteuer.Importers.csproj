@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Ein Ordner je Quelle (Bitget, TradeRepublic, ...) folgt ab P4. -->
+  <PropertyGroup>
+    <RootNamespace>KryptoSteuer.Importers</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\KryptoSteuer.Application.csproj" />
+    <ProjectReference Include="..\Domain\KryptoSteuer.Domain.csproj" />
+  </ItemGroup>
+</Project>

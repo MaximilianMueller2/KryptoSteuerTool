@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Steuer-Engine: reine Funktionen, keine Datenbank. Darf nur von Domain abhängen. -->
+  <PropertyGroup>
+    <RootNamespace>KryptoSteuer.TaxEngine</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\KryptoSteuer.Domain.csproj" />
+  </ItemGroup>
+</Project>

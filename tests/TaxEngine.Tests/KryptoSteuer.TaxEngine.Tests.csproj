@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>KryptoSteuer.TaxEngine.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\backend\TaxEngine\KryptoSteuer.TaxEngine.csproj" />
+  </ItemGroup>
+</Project>

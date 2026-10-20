@@ -1,0 +1,75 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.Domain", "Domain\KryptoSteuer.Domain.csproj", "{7A3F0001-6B2C-4D8E-9A10-1C2D3E4F5A01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.Application", "Application\KryptoSteuer.Application.csproj", "{7A3F0002-6B2C-4D8E-9A10-1C2D3E4F5A02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.Infrastructure", "Infrastructure\KryptoSteuer.Infrastructure.csproj", "{7A3F0003-6B2C-4D8E-9A10-1C2D3E4F5A03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.Importers", "Importers\KryptoSteuer.Importers.csproj", "{7A3F0004-6B2C-4D8E-9A10-1C2D3E4F5A04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.TaxEngine", "TaxEngine\KryptoSteuer.TaxEngine.csproj", "{7A3F0005-6B2C-4D8E-9A10-1C2D3E4F5A05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.Api", "Api\KryptoSteuer.Api.csproj", "{7A3F0006-6B2C-4D8E-9A10-1C2D3E4F5A06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.Domain.Tests", "..\..\tests\Domain.Tests\KryptoSteuer.Domain.Tests.csproj", "{7A3F0011-6B2C-4D8E-9A10-1C2D3E4F5A11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.TaxEngine.Tests", "..\..\tests\TaxEngine.Tests\KryptoSteuer.TaxEngine.Tests.csproj", "{7A3F0012-6B2C-4D8E-9A10-1C2D3E4F5A12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.Importers.Tests", "..\..\tests\Importers.Tests\KryptoSteuer.Importers.Tests.csproj", "{7A3F0013-6B2C-4D8E-9A10-1C2D3E4F5A13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KryptoSteuer.Api.IntegrationTests", "..\..\tests\Api.IntegrationTests\KryptoSteuer.Api.IntegrationTests.csproj", "{7A3F0014-6B2C-4D8E-9A10-1C2D3E4F5A14}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7A3F0001-6B2C-4D8E-9A10-1C2D3E4F5A01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0001-6B2C-4D8E-9A10-1C2D3E4F5A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0001-6B2C-4D8E-9A10-1C2D3E4F5A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0001-6B2C-4D8E-9A10-1C2D3E4F5A01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0002-6B2C-4D8E-9A10-1C2D3E4F5A02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0002-6B2C-4D8E-9A10-1C2D3E4F5A02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0002-6B2C-4D8E-9A10-1C2D3E4F5A02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0002-6B2C-4D8E-9A10-1C2D3E4F5A02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0003-6B2C-4D8E-9A10-1C2D3E4F5A03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0003-6B2C-4D8E-9A10-1C2D3E4F5A03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0003-6B2C-4D8E-9A10-1C2D3E4F5A03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0003-6B2C-4D8E-9A10-1C2D3E4F5A03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0004-6B2C-4D8E-9A10-1C2D3E4F5A04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0004-6B2C-4D8E-9A10-1C2D3E4F5A04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0004-6B2C-4D8E-9A10-1C2D3E4F5A04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0004-6B2C-4D8E-9A10-1C2D3E4F5A04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0005-6B2C-4D8E-9A10-1C2D3E4F5A05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0005-6B2C-4D8E-9A10-1C2D3E4F5A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0005-6B2C-4D8E-9A10-1C2D3E4F5A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0005-6B2C-4D8E-9A10-1C2D3E4F5A05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0006-6B2C-4D8E-9A10-1C2D3E4F5A06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0006-6B2C-4D8E-9A10-1C2D3E4F5A06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0006-6B2C-4D8E-9A10-1C2D3E4F5A06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0006-6B2C-4D8E-9A10-1C2D3E4F5A06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0011-6B2C-4D8E-9A10-1C2D3E4F5A11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0011-6B2C-4D8E-9A10-1C2D3E4F5A11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0011-6B2C-4D8E-9A10-1C2D3E4F5A11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0011-6B2C-4D8E-9A10-1C2D3E4F5A11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0012-6B2C-4D8E-9A10-1C2D3E4F5A12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0012-6B2C-4D8E-9A10-1C2D3E4F5A12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0012-6B2C-4D8E-9A10-1C2D3E4F5A12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0012-6B2C-4D8E-9A10-1C2D3E4F5A12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0013-6B2C-4D8E-9A10-1C2D3E4F5A13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0013-6B2C-4D8E-9A10-1C2D3E4F5A13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0013-6B2C-4D8E-9A10-1C2D3E4F5A13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0013-6B2C-4D8E-9A10-1C2D3E4F5A13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3F0014-6B2C-4D8E-9A10-1C2D3E4F5A14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3F0014-6B2C-4D8E-9A10-1C2D3E4F5A14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3F0014-6B2C-4D8E-9A10-1C2D3E4F5A14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3F0014-6B2C-4D8E-9A10-1C2D3E4F5A14}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

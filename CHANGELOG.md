@@ -1,0 +1,18 @@
+# Changelog
+
+Alle nennenswerten Änderungen werden hier festgehalten.
+Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
+
+## [Unveröffentlicht]
+
+### Hinzugefügt
+
+- Projektgerüst (P1): Backend-Lösung `KryptoSteuer.sln` mit den Projekten Domain, Application,
+  Infrastructure, Importers, TaxEngine und Api (.NET 10).
+- Endpunkt `GET /api/health` mit Datenbankprüfung (200/503) und OpenAPI-Spezifikation unter `/openapi/v1.json`.
+- Testprojekte Domain.Tests, TaxEngine.Tests, Importers.Tests (Architekturtests) und
+  Api.IntegrationTests (Testcontainers für PostgreSQL).
+- Angular-App (Standalone, Signals, Material, Routing, i18n Deutsch) mit Startseite, die `/api/health` aufruft.
+- `docker-compose.yml` mit `postgres`, `api`, `frontend` (nginx) und optionalem `pgadmin`, jeweils mit Healthchecks.
+- Dokumentation: README, `docs/02-architektur.md`, ADR 0001 „Modularer Monolith statt Microservices“.
+- `CLAUDE.md` mit Projektregeln und Steuerregeln (Vorgriff auf P0).

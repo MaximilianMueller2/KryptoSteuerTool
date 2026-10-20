@@ -1,0 +1,40 @@
+using KryptoSteuer.Api;
+using KryptoSteuer.Application;
+using KryptoSteuer.Application.Health;
+using KryptoSteuer.Infrastructure;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenApi();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
+
+var app = builder.Build();
+
+// Die OpenAPI-Spezifikation (/openapi/v1.json) ist die Quelle für den generierten Angular-Client.
+app.MapOpenApi();
+
+app.MapGet("/api/health", async (GetHealthUseCase getHealth, CancellationToken cancellationToken) =>
+    {
+        var report = await getHealth.ExecuteAsync(ApiInfo.Version, cancellationToken);
+        var body = new HealthResponse(
+            report.Status,
+            report.DatabaseReachable ? "Up" : "Down",
+            report.Version,
+            report.TimeUtc);
+
+        // 503 bei fehlender Datenbank, damit Docker-Healthchecks und Monitoring anschlagen.
+        return report.IsHealthy
+            ? Results.Ok(body)
+            : Results.Json(body, statusCode: StatusCodes.Status503ServiceUnavailable);
+    })
+    .WithName("GetHealth")
+    .WithSummary("Zustand der API und der Datenbankverbindung")
+    .Produces<HealthResponse>(StatusCodes.Status200OK)
+    .Produces<HealthResponse>(StatusCodes.Status503ServiceUnavailable);
+
+app.Run();
+
+/// <summary>Sichtbar für <c>WebApplicationFactory&lt;Program&gt;</c> in den Integrationstests.</summary>
+public partial class Program;
