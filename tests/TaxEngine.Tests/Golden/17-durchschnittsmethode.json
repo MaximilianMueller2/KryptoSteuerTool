@@ -1,0 +1,114 @@
+{
+  "name": "17-durchschnittsmethode",
+  "title": "Durchschnittsmethode statt FIFO",
+  "year": 2025,
+  "settings": {
+    "method": "AverageCost"
+  },
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-01T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "10000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-02-01T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2025-03-01T10:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "25000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "10000",
+      "net": "10000",
+      "taxable": "10000"
+    },
+    "disposals": [
+      {
+        "tx": "t3",
+        "lotTx": "t1",
+        "qty": "0.5",
+        "proceeds": "12500",
+        "cost": "7500",
+        "gain": "5000"
+      },
+      {
+        "tx": "t3",
+        "lotTx": "t2",
+        "qty": "0.5",
+        "proceeds": "12500",
+        "cost": "7500",
+        "gain": "5000"
+      }
+    ],
+    "lots": [
+      {
+        "account": "A",
+        "asset": "BTC",
+        "remaining": "0.5",
+        "remainingCost": "2500"
+      },
+      {
+        "account": "A",
+        "asset": "BTC",
+        "remaining": "0.5",
+        "remainingCost": "12500"
+      }
+    ],
+    "findings": []
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "name": "09a-verluste-und-verlustvortrag-2025",
+  "title": "Verluste und Verlustvortrag (2025: Verlust)",
+  "year": 2025,
+  "yearInputs": {
+    "lossCarryForwardIn": "2000"
+  },
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    },
+    {
+      "key": "ETH",
+      "class": "Crypto"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-10T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "30000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-03-10T10:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2025-01-10T11:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "ETH",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "2000"
+        }
+      ]
+    },
+    {
+      "id": "t4",
+      "at": "2025-03-10T11:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "ETH",
+          "dir": "Out",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "3500"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "1500",
+      "losses": "10000",
+      "net": "-8500",
+      "taxable": "0",
+      "lossCarryOut": "10500",
+      "lossUsed": "0"
+    },
+    "findings": []
+  }
+}

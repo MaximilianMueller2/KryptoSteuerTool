@@ -1,0 +1,69 @@
+name: build-and-test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      # Testcontainers nutzt den Docker-Daemon des Runners.
+      - name: Build
+        run: dotnet build src/backend/KryptoSteuer.sln -c Release
+      - name: Test mit Coverage
+        run: >
+          dotnet test src/backend/KryptoSteuer.sln -c Release --no-build
+          --collect:"XPlat Code Coverage" --results-directory ./coverage
+      - name: Mindestabdeckung TaxEngine (95 %)
+        run: python3 scripts/check-coverage.py ./coverage KryptoSteuer.TaxEngine 95
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-backend
+          path: coverage/**/coverage.cobertura.xml
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: src/frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --coverage
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-frontend
+          path: src/frontend/coverage
+          if-no-files-found: ignore
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,106 @@
+{
+  "name": "13a-stichtag-2027-reform-aus",
+  "title": "Kauf 31.12.2026 vs. 01.01.2027, Reform AUS",
+  "year": 2027,
+  "settings": {
+    "applyReform2027": false
+  },
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2026-12-31T22:30:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "40000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2026-12-31T23:30:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "50000"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2027-03-01T12:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "2"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "120000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "30000",
+      "net": "30000",
+      "taxable": "30000"
+    },
+    "disposals": [
+      {
+        "tx": "t3",
+        "lotTx": "t1",
+        "qty": "1",
+        "proceeds": "60000",
+        "cost": "40000",
+        "gain": "20000",
+        "holdingDays": 60,
+        "regime": "Alt",
+        "treatment": "Section23Taxable"
+      },
+      {
+        "tx": "t3",
+        "lotTx": "t2",
+        "qty": "1",
+        "proceeds": "60000",
+        "cost": "50000",
+        "gain": "10000",
+        "holdingDays": 59,
+        "regime": "Neu",
+        "treatment": "Section23Taxable"
+      }
+    ],
+    "findings": []
+  }
+}

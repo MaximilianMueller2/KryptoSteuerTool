@@ -41,10 +41,29 @@ internal sealed class RawRecordConfiguration : IEntityTypeConfiguration<RawRecor
         b.Property(x => x.ExternalId).HasMaxLength(200);
         b.Property(x => x.Payload).IsRequired();
         b.Property(x => x.FileHash).HasMaxLength(64).IsRequired();
+        b.Property(x => x.ContentHash).HasMaxLength(64).IsRequired();
         b.Ignore(x => x.DedupKey);
         b.HasIndex(x => x.ImportRunId);
         // Idempotenz: (Quelle, externe ID) eindeutig, solange es eine externe ID gibt.
         b.HasIndex(x => new { x.Source, x.ExternalId }).IsUnique().HasFilter("\"ExternalId\" IS NOT NULL");
+        b.HasIndex(x => new { x.Source, x.ContentHash }).IsUnique().HasFilter("\"ExternalId\" IS NULL");
+    }
+}
+
+internal sealed class ImportRunConfiguration : IEntityTypeConfiguration<ImportRun>
+{
+    public void Configure(EntityTypeBuilder<ImportRun> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Source).HasMaxLength(50).IsRequired();
+        b.Property(x => x.FileName).HasMaxLength(260).IsRequired();
+        b.Property(x => x.FileHash).HasMaxLength(64).IsRequired();
+        b.Property(x => x.Content).IsRequired();
+        b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.ReportJson).HasColumnType("jsonb").IsRequired();
+        b.Property(x => x.OptionsJson).HasColumnType("jsonb");
+        b.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
+        b.HasIndex(x => x.FileHash);
     }
 }
 
@@ -162,5 +181,57 @@ internal sealed class AuditLogEntryConfiguration : IEntityTypeConfiguration<Audi
         b.Property(x => x.AfterJson).HasColumnType("jsonb");
         b.Property(x => x.Reason).IsRequired();
         b.HasIndex(x => new { x.EntityType, x.EntityId });
+    }
+}
+
+internal sealed class ExchangeCredentialConfiguration : IEntityTypeConfiguration<ExchangeCredential>
+{
+    public void Configure(EntityTypeBuilder<ExchangeCredential> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Provider).HasMaxLength(50).IsRequired();
+        b.Property(x => x.EncryptedApiKey).IsRequired();
+        b.Property(x => x.EncryptedSecret).IsRequired();
+        b.Property(x => x.EncryptedPassphrase).IsRequired();
+        b.Property(x => x.AccountType).HasMaxLength(20);
+        b.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
+        b.HasIndex(x => new { x.AccountId, x.Provider }).IsUnique();
+    }
+}
+
+internal sealed class SyncStateConfiguration : IEntityTypeConfiguration<SyncState>
+{
+    public void Configure(EntityTypeBuilder<SyncState> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Endpoint).HasMaxLength(50).IsRequired();
+        b.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
+        b.HasIndex(x => new { x.AccountId, x.Endpoint }).IsUnique();
+    }
+}
+
+internal sealed class ReviewItemConfiguration : IEntityTypeConfiguration<ReviewItem>
+{
+    public void Configure(EntityTypeBuilder<ReviewItem> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(30);
+        b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Reason).IsRequired();
+        b.Property(x => x.DetailsJson).HasColumnType("jsonb");
+        b.HasIndex(x => new { x.Status, x.Kind });
+        b.HasIndex(x => new { x.AccountId, x.AssetId });
+    }
+}
+
+internal sealed class ReviewDecisionConfiguration : IEntityTypeConfiguration<ReviewDecision>
+{
+    public void Configure(EntityTypeBuilder<ReviewDecision> b)
+    {
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(30);
+        b.HasOne<Transaction>().WithMany().HasForeignKey(x => x.TransactionId).OnDelete(DeleteBehavior.Restrict);
+        b.HasOne<Account>().WithMany().HasForeignKey(x => x.TargetAccountId).OnDelete(DeleteBehavior.Restrict);
+        b.HasIndex(x => x.TransactionId).IsUnique();
     }
 }

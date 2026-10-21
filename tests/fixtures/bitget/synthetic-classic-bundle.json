@@ -1,0 +1,67 @@
+{
+  "format": "bitget-api-bundle/1",
+  "accountType": "classic",
+  "fetchedAtUtc": "2026-10-20T12:00:00.0000000+00:00",
+  "from": "2026-07-22T12:00:00.0000000+00:00",
+  "to": "2026-10-20T12:00:00.0000000+00:00",
+  "symbols": [
+    { "symbol": "BTCUSDT", "baseCoin": "BTC", "quoteCoin": "USDT" },
+    { "symbol": "ETHBTC", "baseCoin": "ETH", "quoteCoin": "BTC" }
+  ],
+  "sections": [
+    {
+      "kind": "spot-fills", "endpoint": "/api/v2/spot/trade/fills",
+      "items": [
+        { "userId": "1", "symbol": "BTCUSDT", "orderId": "o1", "tradeId": "1001", "orderType": "limit", "side": "buy", "priceAvg": "60000", "size": "0.01", "amount": "600", "feeDetail": { "deduction": "no", "feeCoin": "BTC", "totalDeductionFee": "0", "totalFee": "-0.00001" }, "tradeScope": "taker", "cTime": "1767225600000", "uTime": "1767225600000" },
+        { "userId": "1", "symbol": "BTCUSDT", "orderId": "o2", "tradeId": "1002", "orderType": "market", "side": "sell", "priceAvg": "62000", "size": "0.005", "amount": "310", "feeDetail": { "deduction": "no", "feeCoin": "USDT", "totalDeductionFee": "0", "totalFee": "-0.31" }, "tradeScope": "taker", "cTime": "1767312000000", "uTime": "1767312000000" },
+        { "userId": "1", "symbol": "BTCUSDT", "orderId": "o3", "tradeId": "1003", "orderType": "market", "side": "swap", "priceAvg": "62000", "size": "0.005", "amount": "310", "feeDetail": { "deduction": "no", "feeCoin": "USDT", "totalDeductionFee": "0", "totalFee": "-0.31" }, "tradeScope": "taker", "cTime": "1767312000000", "uTime": "1767312000000" }
+      ]
+    },
+    {
+      "kind": "spot-bills", "endpoint": "/api/v2/spot/account/bills",
+      "items": [
+        { "cTime": "1767398400000", "coin": "BGB", "groupType": "other", "businessType": "rebate rewards", "size": "1.5", "balance": "10", "fees": "0", "billId": "b1" },
+        { "cTime": "1767398500000", "coin": "XYZ", "groupType": "other", "businessType": "airdrop rewards", "size": "100", "balance": "100", "fees": "0", "billId": "b2" },
+        { "cTime": "1767398600000", "coin": "BTC", "groupType": "transaction", "businessType": "buy", "size": "0.01", "balance": "0.01", "fees": "-0.00001", "billId": "b3" },
+        { "cTime": "1767398700000", "coin": "USDT", "groupType": "other", "businessType": "weird type", "size": "-2", "balance": "5", "fees": "0", "billId": "b4" }
+      ]
+    },
+    {
+      "kind": "deposits", "endpoint": "/api/v2/spot/wallet/deposit-records",
+      "items": [
+        { "orderId": "d1", "tradeId": "t1", "coin": "USDT", "type": "deposit", "size": "1000", "status": "success", "toAddress": "addr", "dest": "on_chain", "chain": "TRC20", "fromAddress": "src", "cTime": "1767139200000", "uTime": "1767139200000" },
+        { "orderId": "d2", "tradeId": "t2", "coin": "USDT", "type": "deposit", "size": "500", "status": "pending", "toAddress": "addr", "dest": "on_chain", "chain": "TRC20", "fromAddress": "src", "cTime": "1767139300000", "uTime": "1767139300000" }
+      ]
+    },
+    {
+      "kind": "withdrawals", "endpoint": "/api/v2/spot/wallet/withdrawal-records",
+      "items": [
+        { "orderId": "w1", "tradeId": "t3", "coin": "BTC", "dest": "on_chain", "clientOid": "", "type": "withdraw", "tag": "", "size": "0.02", "fee": "0.0002", "status": "success", "toAddress": "bc1x", "fromAddress": "", "confirm": "3", "chain": "BTC", "cTime": "1767484800000", "uTime": "1767484900000" }
+      ]
+    },
+    {
+      "kind": "futures-bills", "endpoint": "/api/v2/mix/account/bill",
+      "items": [
+        { "billId": "f1", "symbol": "BTCUSDT", "amount": "0", "fee": "-0.5", "feeByCoupon": "0", "businessType": "open_long", "coin": "USDT", "balance": "100", "cTime": "1767571200000", "productType": "USDT-FUTURES" },
+        { "billId": "f2", "symbol": "BTCUSDT", "amount": "12.5", "fee": "-0.5", "feeByCoupon": "0", "businessType": "close_long", "coin": "USDT", "balance": "112", "cTime": "1767571300000", "productType": "USDT-FUTURES" },
+        { "billId": "f3", "symbol": "BTCUSDT", "amount": "-0.2", "fee": "0", "feeByCoupon": "0", "businessType": "contract_settle_fee", "coin": "USDT", "balance": "111.8", "cTime": "1767571400000", "productType": "USDT-FUTURES" },
+        { "billId": "f4", "symbol": "", "amount": "-50", "fee": "0", "feeByCoupon": "0", "businessType": "trans_to_exchange", "coin": "USDT", "balance": "61.8", "cTime": "1767571500000", "productType": "USDT-FUTURES" },
+        { "billId": "f5", "symbol": "BTCUSDT", "amount": "-100", "fee": "0", "feeByCoupon": "0", "businessType": "burst_long_loss_query", "coin": "USDT", "balance": "0", "cTime": "1767571600000", "productType": "USDT-FUTURES" },
+        { "billId": "f6", "symbol": "BTCUSDT", "amount": "3", "fee": "0", "feeByCoupon": "0", "businessType": "some_new_type", "coin": "USDT", "balance": "3", "cTime": "1767571700000", "productType": "USDT-FUTURES" }
+      ]
+    },
+    {
+      "kind": "convert", "endpoint": "/api/v2/convert/convert-record",
+      "items": [
+        { "id": "c1", "ts": "1767657600000", "cnvtPrice": "2", "fee": "0", "fromCoinSize": "100", "fromCoin": "USDT", "toCoinSize": "50", "toCoin": "BGB" }
+      ]
+    },
+    {
+      "kind": "earn-savings", "endpoint": "/api/v2/earn/savings/records",
+      "items": [
+        { "orderId": "e1", "coinName": "USDT", "settleCoinName": "USDT", "productType": "flexible", "period": "", "productLevel": "normal", "amount": "0.12", "ts": "1767744000000", "orderType": "interest" },
+        { "orderId": "e2", "coinName": "USDT", "settleCoinName": "USDT", "productType": "flexible", "period": "", "productLevel": "normal", "amount": "100", "ts": "1767744100000", "orderType": "subscribe" }
+      ]
+    }
+  ]
+}

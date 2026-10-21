@@ -1,0 +1,111 @@
+{
+  "name": "14b-alt-neu-neu-zuerst-verkauf-2028",
+  "title": "Alt- und Neu-Lots in einer Wallet, Neubestand zuerst",
+  "year": 2028,
+  "settings": {
+    "applyReform2027": true,
+    "regimeOrder": "NeuFirst"
+  },
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2026-06-01T12:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "30000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2027-06-01T12:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "50000"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2028-03-01T12:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "70000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "0",
+      "taxable": "0"
+    },
+    "reform": {
+      "net": "20000",
+      "pauschbetrag": "1000",
+      "taxable": "19000",
+      "flatTax": "4750",
+      "solidarity": "261.25",
+      "total": "5011.25"
+    },
+    "disposals": [
+      {
+        "tx": "t3",
+        "lotTx": "t2",
+        "qty": "1",
+        "proceeds": "70000",
+        "cost": "50000",
+        "gain": "20000",
+        "holdingDays": 274,
+        "regime": "Neu",
+        "treatment": "ReformCapital"
+      }
+    ],
+    "lots": [
+      {
+        "account": "A",
+        "asset": "BTC",
+        "remaining": "1",
+        "remainingCost": "30000"
+      }
+    ],
+    "findings": []
+  }
+}

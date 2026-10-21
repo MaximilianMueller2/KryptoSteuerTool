@@ -1,0 +1,101 @@
+{
+  "name": "12-schaltjahr",
+  "title": "Schaltjahr: Kauf am 29.02.2024",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2024-02-29T12:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "40000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-02-28T12:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.25"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "15000"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2025-03-01T12:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.25"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "16000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "5000",
+      "net": "5000",
+      "taxable": "5000",
+      "taxFreeAfterPeriodNet": "6000"
+    },
+    "disposals": [
+      {
+        "tx": "t2",
+        "qty": "0.25",
+        "proceeds": "15000",
+        "cost": "10000",
+        "gain": "5000",
+        "holdingDays": 365,
+        "within": true,
+        "taxFreeFrom": "2025-03-01"
+      },
+      {
+        "tx": "t3",
+        "qty": "0.25",
+        "proceeds": "16000",
+        "cost": "10000",
+        "gain": "6000",
+        "holdingDays": 366,
+        "within": false
+      }
+    ],
+    "findings": []
+  }
+}

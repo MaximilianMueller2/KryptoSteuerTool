@@ -15,7 +15,13 @@ public static class IdempotencyKey
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(source);
         return string.IsNullOrWhiteSpace(externalId)
-            ? $"{source}:sha256:{Sha256Hex(rawContent)}"
-            : $"{source}:{externalId.Trim()}";
+            ? FromHash(source, null, Sha256Hex(rawContent))
+            : FromHash(source, externalId, string.Empty);
     }
+
+    /// <summary>Wie <see cref="For"/>, aber mit bereits berechnetem Inhalts-Hash.</summary>
+    public static string FromHash(string source, string? externalId, string contentHash) =>
+        string.IsNullOrWhiteSpace(externalId)
+            ? $"{source}:sha256:{contentHash}"
+            : $"{source}:{externalId.Trim()}";
 }

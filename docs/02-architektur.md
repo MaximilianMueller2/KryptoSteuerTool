@@ -29,6 +29,7 @@ krypto-steuer/
 │  ├─ Infrastructure/           EF Core, PostgreSQL, spätere HTTP-Clients
 │  ├─ Importers/                später ein Ordner je Quelle
 │  ├─ TaxEngine/                Steuer-Engine, nur von Domain abhängig
+│  ├─ Reports/                  PDF- und Excel-Berichte (QuestPDF, ClosedXML), hängt von Application ab
 │  └─ Api/                      ASP.NET Core Web API, OpenAPI
 ├─ src/frontend/                Angular-App, Dockerfile, nginx.conf
 └─ tests/                       Domain.Tests, TaxEngine.Tests, Importers.Tests, Api.IntegrationTests
@@ -42,6 +43,9 @@ flowchart TD
   Api --> Infrastructure
   Api --> Importers
   Api --> TaxEngine
+  Api --> Reports
+  Reports --> Application
+  Application --> TaxEngine
   Infrastructure --> Application
   Importers --> Application
   Application --> Domain
@@ -55,6 +59,7 @@ Regeln, die Architekturtests absichern:
 - `Domain` verweist auf kein anderes Projekt.
 - `TaxEngine` verweist nur auf `Domain`.
 - `Importers` kennt weder `Infrastructure` noch `Api` noch `TaxEngine`.
+- `Reports` kennt weder `Infrastructure` noch `Api`.
 
 ## Health-Endpunkt als Referenz-Schnitt
 
@@ -92,6 +97,5 @@ Startreihenfolge: `postgres` gesund → `api` gesund → `frontend`.
 
 - Der Angular-Client wird noch nicht aus der OpenAPI-Spezifikation generiert, sondern ist für den
   Health-Aufruf von Hand geschrieben (Anleitung in der README).
-- Lint, CI, Coverage und Sicherheits-Scans folgen in P3.
-- Das Gerüst wurde ohne Zugriff auf NuGet und npm geschrieben und noch nicht gebaut; Paketversionen
-  mit `*` und die Angular-22-Konfiguration müssen beim ersten lokalen Lauf bestätigt werden.
+- CI, Coverage und Sicherheits-Scans: siehe [07-betrieb.md](07-betrieb.md) (P3).
+- Docker-Image-Builds (`docker compose up --build`) sind noch nicht in einer Umgebung mit Internet im Container geprüft; Backend und Frontend wurden direkt gebaut und getestet.

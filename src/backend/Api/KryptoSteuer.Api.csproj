@@ -2,6 +2,8 @@
   <PropertyGroup>
     <RootNamespace>KryptoSteuer.Api</RootNamespace>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Für lokale Geheimnisse: dotnet user-secrets (siehe docs/07-betrieb.md) -->
+    <UserSecretsId>kryptosteuer-api-dev</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,9 +11,15 @@
     <ProjectReference Include="..\Infrastructure\KryptoSteuer.Infrastructure.csproj" />
     <ProjectReference Include="..\Importers\KryptoSteuer.Importers.csproj" />
     <ProjectReference Include="..\TaxEngine\KryptoSteuer.TaxEngine.csproj" />
+    <ProjectReference Include="..\Reports\KryptoSteuer.Reports.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.*" />
+    <!-- Nur für dotnet ef (Startprojekt); gelangt nicht ins Release. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

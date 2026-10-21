@@ -9,8 +9,9 @@ nachvollziehbarer Jahresreport. Fokus Krypto; Aktien und ETFs folgen später.
 
 ## Stand
 
-P1 (Projektgerüst) ist umgesetzt. Es gibt noch keine Fachlogik, nur das lauffähige Grundgerüst
-mit `/api/health` und einer Startseite, die den Status anzeigt. Der Fahrplan steht im Prompt-Katalog.
+Importe (Bitget API und Futures-CSV, Trade Republic CSV, allgemeines CSV), Steuer-Engine (§ 23, § 22 Nr. 3, Futures, Reform-Schalter), Review-Queue, EZB-Kurse,
+Jahresbericht (PDF, Excel, CSV) und Oberfläche sind umgesetzt. Offen: Wertpapier-Auswertung, Bitget-Spot/Earn-CSV, Anmeldung, ELSTER-Ausfüllhilfe.
+Details im Abschnitt „Stand der Umsetzung“ in `CLAUDE.md`; **Bedienung Schritt für Schritt: `docs/01-anleitung.md`**.
 
 ## Voraussetzungen
 

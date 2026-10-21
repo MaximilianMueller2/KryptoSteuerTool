@@ -39,6 +39,10 @@ erDiagram
 | `Disposal` | Veräußerung je verbrauchtem Lot: Erlös, AK, Gebührenanteil, Gewinn, Haltetage, steuerpflichtig, Regelsatz-Version |
 | `TaxRun` | Berechnungslauf: Parameter, Regelsatz, Hash der Eingabedaten, Ergebnis-Snapshot |
 | `AuditLogEntry` | manuelle Änderung mit Vorher/Nachher und Begründung |
+| `ImportRun` | Importlauf mit roher Quelldatei (SHA-256), Status Pending/Committed und Bericht (P4) |
+| `ExchangeCredential` | Börsen-Zugang je Konto; Key, Secret und Passphrase nur verschlüsselt (P5) |
+| `SyncState` | letzter erfolgreicher Zeitpunkt je Konto und Endpunkt (P5) |
+| `ReviewItem` | Eintrag der Review-Queue, z. B. Saldo-Abweichung; Ausbau in P11 (P5) |
 
 ## Regeln
 
@@ -57,12 +61,20 @@ erDiagram
 | Buy, Sell, Trade | genau 1 In und 1 Out |
 | Deposit, TransferIn, Staking, Lending, Airdrop, Mining, Bonus, Interest, Dividend, GiftIn | genau 1 In |
 | Withdrawal, TransferOut, Fee, Spend, GiftOut | genau 1 Out |
-| FuturesPnL, FundingFee, Liquidation | genau 1 Bein (Gewinn = In, Verlust = Out) |
+| FuturesPnL, FundingFee, Liquidation, Tax | genau 1 Bein (Gewinn/Erstattung = In, Verlust/einbehaltene Steuer = Out) |
 
 Zusätzlich: Menge > 0, höchstens ein Gebührenbein, Gebührenbeine sind ausgehend.
 
 ## Migrationen
 
-Die erste Migration wird mit `dotnet ef migrations add Initial -p src/backend/Infrastructure -s src/backend/Api`
-erzeugt (Tool: `dotnet tool install --global dotnet-ef`). Sie ist noch nicht eingecheckt, weil das Modell
-in einer Umgebung ohne .NET-SDK entstand.
+Die Migration `Initial` liegt in `src/backend/Infrastructure/Persistence/Migrations`. Neue Migrationen:
+
+```bash
+dotnet tool restore                       # installiert dotnet-ef aus dotnet-tools.json
+ASPNETCORE_ENVIRONMENT=Development dotnet dotnet-ef migrations add <Name> \
+  -p src/backend/Infrastructure -s src/backend/Api -o Persistence/Migrations
+```
+
+Die API wendet Migrationen beim Start an, wenn `Database:MigrateOnStartup` auf `true` steht (in
+`docker-compose.yml` gesetzt, sonst aus). Integrationstests (`LedgerPersistenceTests`) prüfen Migration,
+Idempotenz-Indizes, Genauigkeit der Mengen und die Unveränderlichkeit der Rohdaten gegen echtes PostgreSQL.

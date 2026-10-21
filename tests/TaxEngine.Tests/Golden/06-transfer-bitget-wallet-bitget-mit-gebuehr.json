@@ -1,0 +1,143 @@
+{
+  "name": "06-transfer-bitget-wallet-bitget-mit-gebuehr",
+  "title": "Transfer Bitget → Wallet → Bitget mit Gebühr, Frist läuft weiter",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-10T10:00:00Z",
+      "account": "Bitget",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-02-01T10:00:00Z",
+      "account": "Bitget",
+      "type": "Withdrawal",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.9995"
+        },
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.0005",
+          "fee": true
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2025-02-01T11:00:00Z",
+      "account": "Wallet",
+      "type": "Deposit",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "0.9995"
+        }
+      ]
+    },
+    {
+      "id": "t4",
+      "at": "2025-03-01T10:00:00Z",
+      "account": "Wallet",
+      "type": "Withdrawal",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.9990"
+        },
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.0005",
+          "fee": true
+        }
+      ]
+    },
+    {
+      "id": "t5",
+      "at": "2025-03-01T12:00:00Z",
+      "account": "Bitget",
+      "type": "Deposit",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "0.9990"
+        }
+      ]
+    },
+    {
+      "id": "t6",
+      "at": "2025-06-01T10:00:00Z",
+      "account": "Bitget",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "0.999"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "29970"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "9990",
+      "net": "9990",
+      "taxable": "9990"
+    },
+    "disposals": [
+      {
+        "tx": "t6",
+        "qty": "0.999",
+        "proceeds": "29970",
+        "cost": "19980",
+        "gain": "9990",
+        "holdingDays": 142,
+        "within": true,
+        "taxFreeFrom": "2026-01-11"
+      }
+    ],
+    "transfers": 2,
+    "networkFeeQuantity": "0.001",
+    "holdings": {
+      "Bitget/BTC": "0",
+      "Wallet/BTC": "0"
+    },
+    "findings": []
+  }
+}

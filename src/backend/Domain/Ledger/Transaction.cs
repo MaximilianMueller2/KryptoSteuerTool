@@ -18,6 +18,18 @@ public sealed class Transaction
 
     public string DedupKey => IdempotencyKey.For(Source, ExternalId, ContentHash ?? string.Empty);
 
+    /// <summary>
+    /// Inhaltlicher Fingerabdruck ohne Zeitstempel und Quelle: Typ plus Beine (Richtung, Asset, Menge, Gebührenflag).
+    /// Dient dem Erkennen derselben Buchung aus verschiedenen Quellen (z. B. Bitget-CSV und Bitget-API).
+    /// </summary>
+    public string Fingerprint() =>
+        Type + "|" + string.Join(";", Legs
+            .Select(l => $"{(l.IsFee ? "F" : "L")}{(l.Direction == LegDirection.In ? "+" : "-")}{l.AssetId:N}:{Normalize(l.Amount)}")
+            .Order(StringComparer.Ordinal));
+
+    private static string Normalize(decimal value) =>
+        (value / 1.000000000000000000000000000000000m).ToString("0.##############################", System.Globalization.CultureInfo.InvariantCulture);
+
     /// <summary>Prüft die Invarianten und liefert die Verstöße (leer = gültig).</summary>
     public IReadOnlyList<string> Validate()
     {
@@ -74,11 +86,18 @@ public sealed class Transaction
                     errors.Add($"{Type} braucht genau ein Out-Bein und kein In-Bein.");
                 break;
 
+            case TransactionType.Unknown:
+                // Unbekannte Typen werden unverändert zur Prüfung gespeichert; Beine sind frei.
+                if (Status == TransactionStatus.Ok)
+                    errors.Add("Unbekannte Typen müssen den Status NeedsReview oder Ignored haben.");
+                break;
+
             case TransactionType.FuturesPnL:
             case TransactionType.FundingFee:
             case TransactionType.Liquidation:
+            case TransactionType.Tax:
                 if (ins + outs != 1)
-                    errors.Add($"{Type} braucht genau ein Bein (Gewinn = In, Verlust = Out).");
+                    errors.Add($"{Type} braucht genau ein Bein (In oder Out).");
                 break;
         }
 

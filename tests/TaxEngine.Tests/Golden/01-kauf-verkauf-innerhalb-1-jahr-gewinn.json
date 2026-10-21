@@ -1,0 +1,80 @@
+{
+  "name": "01-kauf-verkauf-innerhalb-1-jahr-gewinn",
+  "title": "Kauf und Verkauf innerhalb eines Jahres mit Gewinn",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-10T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-06-10T10:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "30000"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "10000",
+      "losses": "0",
+      "net": "10000",
+      "belowFreigrenze": false,
+      "taxable": "10000",
+      "lossCarryOut": "0"
+    },
+    "disposals": [
+      {
+        "tx": "t2",
+        "lotTx": "t1",
+        "qty": "1",
+        "proceeds": "30000",
+        "cost": "20000",
+        "gain": "10000",
+        "holdingDays": 151,
+        "within": true,
+        "taxFreeFrom": "2026-01-11"
+      }
+    ],
+    "holdings": {
+      "A/BTC": "0"
+    },
+    "findings": []
+  }
+}

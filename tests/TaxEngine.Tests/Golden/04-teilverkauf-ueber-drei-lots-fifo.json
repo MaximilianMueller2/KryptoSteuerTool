@@ -1,0 +1,136 @@
+{
+  "name": "04-teilverkauf-ueber-drei-lots-fifo",
+  "title": "Teilverkauf über drei Lots (FIFO)",
+  "year": 2025,
+  "assets": [
+    {
+      "key": "BTC",
+      "class": "Crypto"
+    },
+    {
+      "key": "EUR",
+      "class": "Fiat"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "at": "2025-01-01T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "10000"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "at": "2025-02-01T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "20000"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "at": "2025-03-01T10:00:00Z",
+      "account": "A",
+      "type": "Buy",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "In",
+          "amount": "1"
+        },
+        {
+          "asset": "EUR",
+          "dir": "Out",
+          "amount": "30000"
+        }
+      ]
+    },
+    {
+      "id": "t4",
+      "at": "2025-04-01T10:00:00Z",
+      "account": "A",
+      "type": "Sell",
+      "legs": [
+        {
+          "asset": "BTC",
+          "dir": "Out",
+          "amount": "2.5"
+        },
+        {
+          "asset": "EUR",
+          "dir": "In",
+          "amount": "62500"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "section23": {
+      "gains": "20000",
+      "losses": "2500",
+      "net": "17500",
+      "taxable": "17500",
+      "belowFreigrenze": false
+    },
+    "disposals": [
+      {
+        "tx": "t4",
+        "lotTx": "t1",
+        "qty": "1",
+        "proceeds": "25000",
+        "cost": "10000",
+        "gain": "15000"
+      },
+      {
+        "tx": "t4",
+        "lotTx": "t2",
+        "qty": "1",
+        "proceeds": "25000",
+        "cost": "20000",
+        "gain": "5000"
+      },
+      {
+        "tx": "t4",
+        "lotTx": "t3",
+        "qty": "0.5",
+        "proceeds": "12500",
+        "cost": "15000",
+        "gain": "-2500"
+      }
+    ],
+    "lots": [
+      {
+        "account": "A",
+        "asset": "BTC",
+        "remaining": "0.5",
+        "remainingCost": "15000"
+      }
+    ],
+    "holdings": {
+      "A/BTC": "0.5"
+    },
+    "findings": []
+  }
+}

@@ -6,4 +6,13 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\backend\TaxEngine\KryptoSteuer.TaxEngine.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FsCheck.Xunit" Version="2.16.6" />
+  </ItemGroup>
+
+  <!-- Golden Tests: Szenarien als JSON mit Hand-Rechnung (Markdown) daneben. -->
+  <ItemGroup>
+    <None Include="Golden\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
