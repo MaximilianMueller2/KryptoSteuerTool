@@ -29,7 +29,7 @@ jobs:
           --collect:"XPlat Code Coverage" --results-directory ./coverage
       - name: Mindestabdeckung TaxEngine (95 %)
         run: python3 scripts/check-coverage.py ./coverage KryptoSteuer.TaxEngine 95
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-backend
@@ -51,7 +51,7 @@ jobs:
       - run: npm run lint
       - run: npm test -- --coverage
       - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-frontend
