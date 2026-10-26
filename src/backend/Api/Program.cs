@@ -56,7 +56,6 @@ app.MapBitgetEndpoints();
 app.MapTaxEndpoints();
 app.MapReviewEndpoints();
 app.MapReportEndpoints();
-
 app.Run();
 
 /// <summary>Sichtbar für <c>WebApplicationFactory&lt;Program&gt;</c> in den Integrationstests.</summary>
