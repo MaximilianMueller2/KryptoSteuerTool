@@ -56,6 +56,10 @@ app.MapBitgetEndpoints();
 app.MapTaxEndpoints();
 app.MapReviewEndpoints();
 app.MapReportEndpoints();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/openapi/v1.json", "KryptoSteuer API V1");
+});
 app.Run();
 
 /// <summary>Sichtbar für <c>WebApplicationFactory&lt;Program&gt;</c> in den Integrationstests.</summary>
