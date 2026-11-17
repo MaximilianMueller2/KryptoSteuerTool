@@ -1,5 +1,5 @@
 # Build-Kontext ist das Repo-Root: docker build -f src/backend/Dockerfile .
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /repo
 
 # Erst nur die Projektdateien kopieren, damit der Restore-Layer gecacht wird.
